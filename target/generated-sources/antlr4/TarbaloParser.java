@@ -1,4 +1,4 @@
-// Generated from c:/Users/crebo/OneDrive/Documentos/Faculdade/Compiladores/mini-compilador/src/main/antlr4/Tarbalo.g4 by ANTLR 4.13.1
+// Generated from Tarbalo.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -152,6 +152,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_programa; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterPrograma(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitPrograma(this);
+		}
 	}
 
 	public final ProgramaContext programa() throws RecognitionException {
@@ -211,6 +219,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaracao; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterDeclaracao(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitDeclaracao(this);
+		}
 	}
 
 	public final DeclaracaoContext declaracao() throws RecognitionException {
@@ -272,6 +288,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaracaoVariavel; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterDeclaracaoVariavel(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitDeclaracaoVariavel(this);
+		}
 	}
 
 	public final DeclaracaoVariavelContext declaracaoVariavel() throws RecognitionException {
@@ -327,6 +351,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_variavel; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterVariavel(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitVariavel(this);
+		}
 	}
 
 	public final VariavelContext variavel() throws RecognitionException {
@@ -376,6 +408,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_tipoVariavel; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterTipoVariavel(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitTipoVariavel(this);
+		}
 	}
 
 	public final TipoVariavelContext tipoVariavel() throws RecognitionException {
@@ -418,6 +458,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_tipoRetorno; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterTipoRetorno(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitTipoRetorno(this);
+		}
 	}
 
 	public final TipoRetornoContext tipoRetorno() throws RecognitionException {
@@ -469,6 +517,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_dimensaoVetor; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterDimensaoVetor(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitDimensaoVetor(this);
+		}
 	}
 
 	public final DimensaoVetorContext dimensaoVetor() throws RecognitionException {
@@ -527,6 +583,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaracaoVetor; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterDeclaracaoVetor(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitDeclaracaoVetor(this);
+		}
 	}
 
 	public final DeclaracaoVetorContext declaracaoVetor() throws RecognitionException {
@@ -601,6 +665,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_inicializacaoVetor; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterInicializacaoVetor(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitInicializacaoVetor(this);
+		}
 	}
 
 	public final InicializacaoVetorContext inicializacaoVetor() throws RecognitionException {
@@ -675,6 +747,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaracaoFuncao; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterDeclaracaoFuncao(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitDeclaracaoFuncao(this);
+		}
 	}
 
 	public final DeclaracaoFuncaoContext declaracaoFuncao() throws RecognitionException {
@@ -741,6 +821,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parametros; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterParametros(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitParametros(this);
+		}
 	}
 
 	public final ParametrosContext parametros() throws RecognitionException {
@@ -793,6 +881,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parametro; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterParametro(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitParametro(this);
+		}
 	}
 
 	public final ParametroContext parametro() throws RecognitionException {
@@ -830,6 +926,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_bloco; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterBloco(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitBloco(this);
+		}
 	}
 
 	public final BlocoContext bloco() throws RecognitionException {
@@ -921,6 +1025,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_comando; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterComando(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitComando(this);
+		}
 	}
 
 	public final ComandoContext comando() throws RecognitionException {
@@ -1056,6 +1168,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_leitura; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterLeitura(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitLeitura(this);
+		}
 	}
 
 	public final LeituraContext leitura() throws RecognitionException {
@@ -1107,6 +1227,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_escrita; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterEscrita(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitEscrita(this);
+		}
 	}
 
 	public final EscritaContext escrita() throws RecognitionException {
@@ -1173,6 +1301,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_selecaoVariavel; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterSelecaoVariavel(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitSelecaoVariavel(this);
+		}
 	}
 
 	public final SelecaoVariavelContext selecaoVariavel() throws RecognitionException {
@@ -1226,6 +1362,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_atribuicao; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterAtribuicao(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitAtribuicao(this);
+		}
 	}
 
 	public final AtribuicaoContext atribuicao() throws RecognitionException {
@@ -1286,6 +1430,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_incremento; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterIncremento(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitIncremento(this);
+		}
 	}
 
 	public final IncrementoContext incremento() throws RecognitionException {
@@ -1321,6 +1473,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_decremento; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterDecremento(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitDecremento(this);
+		}
 	}
 
 	public final DecrementoContext decremento() throws RecognitionException {
@@ -1356,6 +1516,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_incrementoPonto; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterIncrementoPonto(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitIncrementoPonto(this);
+		}
 	}
 
 	public final IncrementoPontoContext incrementoPonto() throws RecognitionException {
@@ -1391,6 +1559,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_decrementoPonto; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterDecrementoPonto(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitDecrementoPonto(this);
+		}
 	}
 
 	public final DecrementoPontoContext decrementoPonto() throws RecognitionException {
@@ -1444,6 +1620,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_cmdSe; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterCmdSe(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitCmdSe(this);
+		}
 	}
 
 	public final CmdSeContext cmdSe() throws RecognitionException {
@@ -1516,6 +1700,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_cmdEnquanto; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterCmdEnquanto(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitCmdEnquanto(this);
+		}
 	}
 
 	public final CmdEnquantoContext cmdEnquanto() throws RecognitionException {
@@ -1572,6 +1764,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_cmdFacaEnquanto; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterCmdFacaEnquanto(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitCmdFacaEnquanto(this);
+		}
 	}
 
 	public final CmdFacaEnquantoContext cmdFacaEnquanto() throws RecognitionException {
@@ -1639,6 +1839,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_cmdPara; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterCmdPara(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitCmdPara(this);
+		}
 	}
 
 	public final CmdParaContext cmdPara() throws RecognitionException {
@@ -1700,6 +1908,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_atribuicaoPara; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterAtribuicaoPara(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitAtribuicaoPara(this);
+		}
 	}
 
 	public final AtribuicaoParaContext atribuicaoPara() throws RecognitionException {
@@ -1763,6 +1979,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_atualizacaoPara; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterAtualizacaoPara(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitAtualizacaoPara(this);
+		}
 	}
 
 	public final AtualizacaoParaContext atualizacaoPara() throws RecognitionException {
@@ -1817,6 +2041,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_retorno; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterRetorno(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitRetorno(this);
+		}
 	}
 
 	public final RetornoContext retorno() throws RecognitionException {
@@ -1861,6 +2093,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_pare; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterPare(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitPare(this);
+		}
 	}
 
 	public final PareContext pare() throws RecognitionException {
@@ -1894,6 +2134,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_continuar; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterContinuar(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitContinuar(this);
+		}
 	}
 
 	public final ContinuarContext continuar() throws RecognitionException {
@@ -1935,6 +2183,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressao; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressao(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressao(this);
+		}
 	}
 
 	public final ExpressaoContext expressao() throws RecognitionException {
@@ -1991,6 +2247,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressaoXor; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressaoXor(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressaoXor(this);
+		}
 	}
 
 	public final ExpressaoXorContext expressaoXor() throws RecognitionException {
@@ -2047,6 +2311,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressaoE; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressaoE(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressaoE(this);
+		}
 	}
 
 	public final ExpressaoEContext expressaoE() throws RecognitionException {
@@ -2100,6 +2372,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressaoNegacao; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressaoNegacao(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressaoNegacao(this);
+		}
 	}
 
 	public final ExpressaoNegacaoContext expressaoNegacao() throws RecognitionException {
@@ -2164,6 +2444,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressaoRelacional; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressaoRelacional(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressaoRelacional(this);
+		}
 	}
 
 	public final ExpressaoRelacionalContext expressaoRelacional() throws RecognitionException {
@@ -2224,6 +2512,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressaoAditiva; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressaoAditiva(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressaoAditiva(this);
+		}
 	}
 
 	public final ExpressaoAditivaContext expressaoAditiva() throws RecognitionException {
@@ -2300,6 +2596,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressaoMultiplicativa; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressaoMultiplicativa(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressaoMultiplicativa(this);
+		}
 	}
 
 	public final ExpressaoMultiplicativaContext expressaoMultiplicativa() throws RecognitionException {
@@ -2362,6 +2666,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expressaoUnaria; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterExpressaoUnaria(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitExpressaoUnaria(this);
+		}
 	}
 
 	public final ExpressaoUnariaContext expressaoUnaria() throws RecognitionException {
@@ -2442,6 +2754,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_operando; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterOperando(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitOperando(this);
+		}
 	}
 
 	public final OperandoContext operando() throws RecognitionException {
@@ -2551,6 +2871,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_acessoVetor; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterAcessoVetor(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitAcessoVetor(this);
+		}
 	}
 
 	public final AcessoVetorContext acessoVetor() throws RecognitionException {
@@ -2604,6 +2932,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_acessoDimensao; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterAcessoDimensao(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitAcessoDimensao(this);
+		}
 	}
 
 	public final AcessoDimensaoContext acessoDimensao() throws RecognitionException {
@@ -2656,6 +2992,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_chamadaFuncao; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterChamadaFuncao(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitChamadaFuncao(this);
+		}
 	}
 
 	public final ChamadaFuncaoContext chamadaFuncao() throws RecognitionException {
@@ -2710,6 +3054,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_argumentos; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterArgumentos(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitArgumentos(this);
+		}
 	}
 
 	public final ArgumentosContext argumentos() throws RecognitionException {
@@ -2762,6 +3114,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_operadorRelacional; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterOperadorRelacional(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitOperadorRelacional(this);
+		}
 	}
 
 	public final OperadorRelacionalContext operadorRelacional() throws RecognitionException {
@@ -2806,6 +3166,14 @@ public class TarbaloParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_operadorAtribuicaoComposta; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).enterOperadorAtribuicaoComposta(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TarbaloListener ) ((TarbaloListener)listener).exitOperadorAtribuicaoComposta(this);
+		}
 	}
 
 	public final OperadorAtribuicaoCompostaContext operadorAtribuicaoComposta() throws RecognitionException {
