@@ -1,40 +1,44 @@
+/* ======================================================================
+   Gramática Tarbalo
+   Linguagem imperativa com palavras‑chave em português.
+   Bloco delimitado por prog ... fimprog.
+   ====================================================================== */
+
 grammar Tarbalo;
 
-/*
-|--------------------------------------------------------------------------
-| PARSER
-|--------------------------------------------------------------------------
-*/
+/* ======================================================================
+   I. ESTRUTURA DO PROGRAMA
+   ====================================================================== */
 
 programa:
     INICIO
-        declaracoes
-        blocoPrincipal
+      bloco+
     FIM
     PONTO
     EOF
 ;
 
-/* --------------------------------------------------------------------- */
-/* DECLARAÇÕES */
-/* --------------------------------------------------------------------- */
-
-declaracoes:
-    declaracao*
-;
+/* ======================================================================
+   II. DECLARAÇÕES
+   ====================================================================== */
 
 declaracao:
     declaracaoVariavel
+    | declaracaoVetor
     | declaracaoFuncao
 ;
 
+// -----------------------------------------------------------------------
+// Variáveis e vetores
+// -----------------------------------------------------------------------
+
 declaracaoVariavel:
-    tipoVariavel variavel (VIRGULA variavel)*
+    VARIAVEL tipoVariavel ID (ATRIBUICAO expressao)?
     PONTO
 ;
 
 variavel:
-    ID dimensaoDeclaracao*
+    ID dimensaoVetor*          // ex.: a, vet[10], mat[2][3]
 ;
 
 tipoVariavel:
@@ -50,23 +54,28 @@ tipoRetorno:
     | VAZIO
 ;
 
-dimensaoDeclaracao:
-    ABRECOLCHETE NUM FECHACOLCHETE
-;
-
-acessoVetor:
-    ID acessoDimensao+
-;
-
-acessoDimensao:
+dimensaoVetor:
     ABRECOLCHETE
-        expressao
+        NUM?
     FECHACOLCHETE
 ;
 
-/* --------------------------------------------------------------------- */
-/* FUNÇÕES */
-/* --------------------------------------------------------------------- */
+declaracaoVetor:
+    VETOR tipoVariavel ID dimensaoVetor+ (ATRIBUICAO inicializacaoVetor)?
+    PONTO
+;
+
+inicializacaoVetor:
+    ABRECOLCHETE
+        (
+            expressao (PONTIVIRGULA expressao)*
+        )?
+    FECHACOLCHETE
+;
+
+// -----------------------------------------------------------------------
+// Funções
+// -----------------------------------------------------------------------
 
 declaracaoFuncao:
     FUNCAO tipoRetorno ID
@@ -87,20 +96,16 @@ parametro:
     tipoVariavel variavel
 ;
 
-/* --------------------------------------------------------------------- */
-/* BLOCO */
-/* --------------------------------------------------------------------- */
-
-blocoPrincipal:
-    bloco
-;
+/* ======================================================================
+   III. BLOCOS E COMANDOS
+   ====================================================================== */
 
 bloco:
-    comando*
+    comando+
 ;
 
 comando:
-    declaracaoVariavel
+    declaracao
     | atribuicao
     | leitura
     | escrita
@@ -111,19 +116,19 @@ comando:
     | retorno
     | pare
     | continuar
-    | incremento
-    | decremento
+    | incrementoPonto
+    | decrementoPonto
     | chamadaFuncao PONTO
 ;
 
-/* --------------------------------------------------------------------- */
-/* ENTRADA E SAÍDA */
-/* --------------------------------------------------------------------- */
+// -----------------------------------------------------------------------
+// 1. Entrada e saída
+// -----------------------------------------------------------------------
 
 leitura:
     LEIA
     ABREPARENTE
-        variavel
+        selecaoVariavel
     FECHAPARENTE
     PONTO
 ;
@@ -131,43 +136,45 @@ leitura:
 escrita:
     ESCREVA
     ABREPARENTE
-        (
-            expressao (PONTIVIRGULA expressao)*
-        )?
+        (expressao (PONTIVIRGULA expressao)*)?
     FECHAPARENTE
     PONTO
 ;
 
-/* --------------------------------------------------------------------- */
-/* ATRIBUIÇÕES */
-/* --------------------------------------------------------------------- */
+// -----------------------------------------------------------------------
+// 2. Atribuição e incrementos
+// -----------------------------------------------------------------------
 
-destinoAtribuicao:
+selecaoVariavel:
     ID
     | acessoVetor
 ;
 
 atribuicao:
-    destinoAtribuicao
-    (
-        ATRIBUICAO
-        | operadorAtribuicaoComposta 
-    )
-    expressao
+    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) expressao
     PONTO
 ;
 
 incremento:
-    destinoAtribuicao INCREMENTO
+    selecaoVariavel INCREMENTO
 ;
 
 decremento:
-    destinoAtribuicao DECREMENTO
+    selecaoVariavel DECREMENTO
 ;
 
-/* --------------------------------------------------------------------- */
-/* CONDICIONAIS */
-/* --------------------------------------------------------------------- */
+incrementoPonto:
+    incremento
+    PONTO
+;
+decrementoPonto:
+    decremento
+    PONTO
+;
+
+// -----------------------------------------------------------------------
+// 3. Estruturas de controle
+// -----------------------------------------------------------------------
 
 cmdSe:
     SE
@@ -177,18 +184,13 @@ cmdSe:
     ABRECHAVE
         bloco
     FECHACHAVE
-    (
-        SENAO
+    (SENAO
         ABRECHAVE
             bloco
         FECHACHAVE
     )?
     PONTO
 ;
-
-/* --------------------------------------------------------------------- */
-/* REPETIÇÕES */
-/* --------------------------------------------------------------------- */
 
 cmdEnquanto:
     ENQUANTO
@@ -216,9 +218,9 @@ cmdFacaEnquanto:
 cmdPara:
     PARA
     ABREPARENTE
-        atribuicaoPara PONTO
-        expressao PONTO
-        atualizacaoPara
+      atribuicaoPara PONTIVIRGULA
+      expressao PONTIVIRGULA
+      atualizacaoPara
     FECHAPARENTE
     ABRECHAVE
         bloco
@@ -227,36 +229,18 @@ cmdPara:
 ;
 
 atribuicaoPara:
-    destinoAtribuicao
-    (
-        ATRIBUICAO
-        | operadorAtribuicaoComposta 
-    )
-    expressao
+    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) expressao
 ;
 
 atualizacaoPara:
-    incrementoPara
-    | decrementoPara
+    incremento
+    | decremento
     | atribuicaoPara
-    | atribuicaoCompostaPara
 ;
 
-incrementoPara:
-    destinoAtribuicao INCREMENTO
-;
-
-decrementoPara:
-    destinoAtribuicao DECREMENTO
-;
-
-atribuicaoCompostaPara:
-    destinoAtribuicao operadorAtribuicaoComposta (variavel | NUM)
-;
-
-/* --------------------------------------------------------------------- */
-/* CONTROLE */
-/* --------------------------------------------------------------------- */
+// -----------------------------------------------------------------------
+// 4. Comandos de fluxo
+// -----------------------------------------------------------------------
 
 retorno:
     RETORNE expressao?
@@ -273,115 +257,54 @@ continuar:
     PONTO
 ;
 
-/* --------------------------------------------------------------------- */
-/* EXPRESSÕES */
-/* --------------------------------------------------------------------- */
+/* ======================================================================
+   IV. EXPRESSÕES
+   ====================================================================== */
 
+// ---------- 1. Operador OU ----------
 expressao:
-    expressaoOu
+    expressaoXor (OU expressaoXor)*
 ;
 
-/* --------------------------------------------------------------------- */
-/* OPERADOR OU */
-/* --------------------------------------------------------------------- */
-
-expressaoOu:
-    expressaoXor
-    (
-        OU expressaoXor
-    )*
-;
-
-/* --------------------------------------------------------------------- */
-/* OPERADOR XOR */
-/* --------------------------------------------------------------------- */
-
+// ---------- 2. Operador XOR ----------
 expressaoXor:
-    expressaoE
-    (
-        XOR expressaoE
-    )*
+    expressaoE (XOR expressaoE)*
 ;
 
-/* --------------------------------------------------------------------- */
-/* OPERADOR E */
-/* --------------------------------------------------------------------- */
-
+// ---------- 3. Operador E ----------
 expressaoE:
-    expressaoNegacao
-    (
-        E expressaoNegacao
-    )*
+    expressaoNegacao (E expressaoNegacao)*
 ;
 
-/* --------------------------------------------------------------------- */
-/* OPERADOR NAO */
-/* --------------------------------------------------------------------- */
-
+// ---------- 4. Negação lógica ----------
 expressaoNegacao:
     NAO expressaoNegacao
     | expressaoRelacional
 ;
 
-/* --------------------------------------------------------------------- */
-/* EXPRESSÕES RELACIONAIS */
-/* --------------------------------------------------------------------- */
-
+// ---------- 5. Operadores relacionais ----------
 expressaoRelacional:
-    expressaoAditiva
-    (
-        operadorRelacional
-        expressaoAditiva
-    )?
+    expressaoAditiva (operadorRelacional expressaoAditiva)?
 ;
 
-/* --------------------------------------------------------------------- */
-/* EXPRESSÕES ADITIVAS */
-/* --------------------------------------------------------------------- */
-
+// ---------- 6. Adição / subtração / concatenação ----------
 expressaoAditiva:
-    expressaoMultiplicativa
-    (
-        (
-            MAIS
-            | MENOS
-            | CONCAT
-        )
-        expressaoMultiplicativa
-    )*
+    expressaoMultiplicativa ((MAIS | MENOS | CONCAT) expressaoMultiplicativa)*
 ;
 
-/* --------------------------------------------------------------------- */
-/* EXPRESSÕES MULTIPLICATIVAS */
-/* --------------------------------------------------------------------- */
-
+// ---------- 7. Multiplicação / divisão ----------
 expressaoMultiplicativa:
-    expressaoUnaria
-    (
-        (
-            MULT
-            | DIV
-            | DIVINT
-            | MOD
-        )
-        expressaoUnaria
-    )*
+    expressaoUnaria ((MULT | DIV | DIVINT | MOD) expressaoUnaria)*
 ;
 
-/* --------------------------------------------------------------------- */
-/* EXPRESSÕES UNÁRIAS */
-/* --------------------------------------------------------------------- */
-
+// ---------- 8. Expressões unárias ----------
 expressaoUnaria:
     MENOS expressaoUnaria
     | MAIS expressaoUnaria
     | operando
 ;
 
-/* --------------------------------------------------------------------- */
-/* OPERANDOS */
-/* --------------------------------------------------------------------- */
-
+// ---------- 9. Operandos ----------
 operando:
     NUM
     | NUMDEC
@@ -395,10 +318,18 @@ operando:
     | ABREPARENTE expressao FECHAPARENTE
 ;
 
-/* --------------------------------------------------------------------- */
-/* FUNÇÕES */
-/* --------------------------------------------------------------------- */
+// ---------- 10. Acesso a vetor ----------
+acessoVetor:
+    ID acessoDimensao+
+;
 
+acessoDimensao:
+    ABRECOLCHETE
+        expressao (PONTOPONTO expressao)?
+    FECHACOLCHETE
+;
+
+// ---------- 11. Chamada de função ----------
 chamadaFuncao:
     ID
     ABREPARENTE
@@ -410,9 +341,9 @@ argumentos:
     expressao (PONTIVIRGULA expressao)*
 ;
 
-/* --------------------------------------------------------------------- */
-/* OPERADORES */
-/* --------------------------------------------------------------------- */
+/* ======================================================================
+   V. OPERADORES (símbolos compostos)
+   ====================================================================== */
 
 operadorRelacional:
     MENOR
@@ -429,249 +360,90 @@ operadorAtribuicaoComposta:
     | MULT_ATRIBUICAO
     | DIV_ATRIBUICAO
     | MOD_ATRIBUICAO
+    | CONCAT_ATRIBUICAO
 ;
 
-/*
-|--------------------------------------------------------------------------
-| LEXER
-|--------------------------------------------------------------------------
-*/
+/* ======================================================================
+   VI. LEXER
+   ====================================================================== */
 
-/* --------------------------------------------------------------------- */
-/* PALAVRAS RESERVADAS */
-/* --------------------------------------------------------------------- */
+// -----------------------------------------------------------------------
+// A. Palavras reservadas
+// -----------------------------------------------------------------------
 
-INICIO:
-    'prog'
-;
+INICIO          : 'prog';
+FIM             : 'fimprog';
+VARIAVEL        : 'var';
+VETOR           : 'vtr';
+INTEIRO         : 'int';
+DECIMAL         : 'dec';
+CARACTERE       : 'car';
+TEXTO_TIPO      : 'texto';
+BOOLEANO_TIPO   : 'logico';
+VAZIO           : 'vazio';
+FUNCAO          : 'func';
+RETORNE         : 'retorne';
+LEIA            : 'leia';
+ESCREVA         : 'escreva';
+SE              : 'se';
+SENAO           : 'senao';
+ENQUANTO        : 'enquanto';
+FACA            : 'faca';
+PARA            : 'para';
+PARE            : 'pare';
+CONTINUAR       : 'continuar';
+VERDADEIRO      : 'VDD';
+FALSO           : 'FAKE';
 
-FIM:
-    'fimprog'
-;
+// -----------------------------------------------------------------------
+// B. Operadores
+// -----------------------------------------------------------------------
 
-INTEIRO:
-    'int'
-;
+SOMA_ATRIBUICAO      : '+:';
+SUBTRACAO_ATRIBUICAO : '-:';
+MULT_ATRIBUICAO      : '*:';
+DIV_ATRIBUICAO       : '/:';
+MOD_ATRIBUICAO       : '%:';
+CONCAT_ATRIBUICAO    : '&:';
+INCREMENTO           : '++';
+DECREMENTO           : '--';
+PONTOPONTO           : '..';
+MAIS                 : '+';
+MENOS                : '-';
+MULT                 : '*';
+DIVINT               : '//';
+DIV                  : '/';
+MOD                  : '%';
+CONCAT               : '&';
+ATRIBUICAO           : ':';
+MENOR                : '<';
+MAIOR                : '>';
+MENORIGUAL           : '<=';
+MAIORIGUAL           : '>=';
+IGUAL                : '=';
+DIFERENTE            : '!=';
+NAO                  : 'nao';
+E                    : 'e';
+OU                   : 'ou';
+XOR                  : 'xor';
 
-DECIMAL:
-    'dec'
-;
+// -----------------------------------------------------------------------
+// C. Pontuação
+// -----------------------------------------------------------------------
 
-CARACTERE:
-    'car'
-;
+ABREPARENTE   : '(';
+FECHAPARENTE  : ')';
+ABRECHAVE     : '{';
+FECHACHAVE    : '}';
+ABRECOLCHETE  : '[';
+FECHACOLCHETE : ']';
+VIRGULA       : ',';
+PONTIVIRGULA  : ';';
+PONTO         : '.';
 
-TEXTO_TIPO:
-    'texto'
-;
-
-BOOLEANO_TIPO:
-    'booleano'
-;
-
-VAZIO:
-    'vazio'
-;
-
-FUNCAO:
-    'func'
-;
-
-RETORNE:
-    'retorne'
-;
-
-LEIA:
-    'leia'
-;
-
-ESCREVA:
-    'escreva'
-;
-
-SE:
-    'se'
-;
-
-SENAO:
-    'senao'
-;
-
-ENQUANTO:
-    'enquanto'
-;
-
-FACA:
-    'faca'
-;
-
-PARA:
-    'para'
-;
-
-PARE:
-    'pare'
-;
-
-CONTINUAR:
-    'continue'
-;
-
-VERDADEIRO:
-    'verdadeiro'
-;
-
-FALSO:
-    'falso'
-;
-
-/* --------------------------------------------------------------------- */
-/* OPERADORES */
-/* --------------------------------------------------------------------- */
-
-SOMA_ATRIBUICAO:
-    '+:'
-;
-
-SUBTRACAO_ATRIBUICAO:
-    '-:'
-;
-
-MULT_ATRIBUICAO:
-    '*:'
-;
-
-DIV_ATRIBUICAO:
-    '/:'
-;
-
-MOD_ATRIBUICAO:
-    '%:'
-;
-
-INCREMENTO:
-    '++'
-;
-
-DECREMENTO:
-    '--'
-;
-
-MAIS:
-    '+'
-;
-
-MENOS:
-    '-'
-;
-
-MULT:
-    '*'
-;
-
-DIVINT:
-    '//'
-;
-
-DIV:
-    '/'
-;
-
-MOD:
-    '%'
-;
-
-CONCAT:
-    '&'
-;
-
-ATRIBUICAO:
-    ':'
-;
-
-MENOR:
-    '<'
-;
-
-MAIOR:
-    '>'
-;
-
-MENORIGUAL:
-    '<='
-;
-
-MAIORIGUAL:
-    '>='
-;
-
-IGUAL:
-    '='
-;
-
-DIFERENTE:
-    '!='
-;
-
-NAO:
-    'nao'
-;
-
-E:
-    'e'
-;
-
-OU:
-    'ou'
-;
-
-XOR:
-    'xor'
-;
-
-/* --------------------------------------------------------------------- */
-/* PONTUAÇÃO */
-/* --------------------------------------------------------------------- */
-
-ABREPARENTE:
-    '('
-;
-
-FECHAPARENTE:
-    ')'
-;
-
-ABRECHAVE:
-    '{'
-;
-
-FECHACHAVE:
-    '}'
-;
-
-ABRECOLCHETE:
-    '['
-;
-
-FECHACOLCHETE:
-    ']'
-;
-
-VIRGULA:
-    ','
-;
-
-PONTIVIRGULA:
-    ';'
-;
-
-PONTO:
-    '.'
-;
-
-/* --------------------------------------------------------------------- */
-/* LITERAIS */
-/* --------------------------------------------------------------------- */
+// -----------------------------------------------------------------------
+// D. Literais
+// -----------------------------------------------------------------------
 
 NUMDEC:
     '0' ',' [0-9]+
@@ -684,69 +456,34 @@ NUM:
 ;
 
 CHAR:
-    '\'' (
-        ESCAPE_CHAR
-        | ~['\\\r\n]
-    )
-    '\''
+    '\'' ( ESCAPE_CHAR | ~['\\\r\n] ) '\''
 ;
 
 fragment ESCAPE_CHAR:
-    '\\'
-    (
-        '\''
-        | '\\'
-        | 'n'
-        | 't'
-        | 'r'
-    )
+    '\\' ( '\'' | '\\' | 'n' | 't' | 'r' )
 ;
 
 STRING:
-    '"'
-    (
-        ESCAPE_STRING
-        | ~["\\\r\n]
-    )*
-    '"'
+    '"' ( ESCAPE_STRING | ~["\\\r\n] )* '"'
 ;
 
 fragment ESCAPE_STRING:
-    '\\'
-    (
-        '"'
-        | '\\'
-        | 'n'
-        | 't'
-        | 'r'
-    )
+    '\\' ( '"' | '\\' | 'n' | 't' | 'r' )
 ;
 
-/* --------------------------------------------------------------------- */
-/* IDENTIFICADORES */
-/* --------------------------------------------------------------------- */
+// -----------------------------------------------------------------------
+// E. Identificadores
+// -----------------------------------------------------------------------
 
 ID:
     [a-zA-Z_áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]
     [a-zA-Z_0-9áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]*
 ;
 
-/* --------------------------------------------------------------------- */
-/* COMENTÁRIOS */
-/* --------------------------------------------------------------------- */
+// -----------------------------------------------------------------------
+// F. Comentários e espaços (ignorados)
+// -----------------------------------------------------------------------
 
-COMENTARIO_LINHA:
-    '#' ~[\r\n]* -> skip
-;
-
-COMENTARIO_BLOCO:
-    '/*' .*? '*/' -> skip
-;
-
-/* --------------------------------------------------------------------- */
-/* ESPAÇOS */
-/* --------------------------------------------------------------------- */
-
-WS:
-    [ \t\r\n]+ -> skip
-;
+COMENTARIO_LINHA : '#' ~[\r\n]* -> skip;
+COMENTARIO_BLOCO : '/*' .*? '*/' -> skip;
+WS               : [ \t\r\n]+ -> skip;
