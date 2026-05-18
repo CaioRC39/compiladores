@@ -1,0 +1,21 @@
+prog
+    # Declarando variáveis
+    int a, b.
+    texto mensagem.
+
+    # Atribuindo valores
+    a : 10.
+    b : 20.
+    mensagem : "Iniciando o teste".
+
+    # Exibindo e lendo
+    escreva(mensagem).
+    leia(a).
+
+    # Testando condicional e cálculo
+    se (a < b) {
+        a : a + b.
+        c : 10
+        escreva("A e menor").
+    }.
+fimprog.
