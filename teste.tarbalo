@@ -1,21 +1,37 @@
 prog
-    # Declarando variáveis
-    int a, b.
-    texto mensagem.
+    var texto nome.
+    var int idade.
+    var dec altura.
+    var logico gostaDeProgramar.
+    var car inicial.
 
-    # Atribuindo valores
-    a : 10.
-    b : 20.
-    mensagem : "Iniciando o teste".
+    escreva("=== TESTE COMPLETO DO SCANNER ===").
 
-    # Exibindo e lendo
-    escreva(mensagem).
-    leia(a).
+    escreva("Digite o seu primeiro nome: ").
+    leia(nome).
 
-    # Testando condicional e cálculo
-    se (a < b) {
-        a : a + b.
-        c : 10
-        escreva("A e menor").
-    }.
+    escreva("Digite a sua idade (inteiro): ").
+    leia(idade).
+
+    escreva("Digite a sua altura (decimal, use virgula dependendo do seu sistema): ").
+    leia(altura).
+
+    escreva("Gosta de programar? (escreva true ou false): ").
+    leia(gostaDeProgramar).
+
+    escreva("Digite a inicial do seu apelido (1 caractere): ").
+    leia(inicial).
+
+    escreva("").
+    escreva("=== DADOS LIDOS COM SUCESSO ===").
+    escreva("Nome lido: ").
+    escreva(nome).
+    escreva("Idade lida: ").
+    escreva(idade).
+    escreva("Altura lida: ").
+    escreva(altura).
+    escreva("Gosta de programar: ").
+    escreva(gostaDeProgramar).
+    escreva("Inicial lida: ").
+    escreva(inicial).
 fimprog.

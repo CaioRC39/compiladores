@@ -19,19 +19,26 @@ public class Main {
             // 3. Árvore sintática
             ParseTree tree = parser.programa();
 
-            // 4. Transpilador (Visitor)
-            TarbaloTranspilador transpilador = new TarbaloTranspilador();
+            // 4. Análise Semântica
+            ParseTreeWalker walker = new ParseTreeWalker();
+            AnalisadorSemantico analisador = new AnalisadorSemantico();
+            walker.walk(analisador, tree); // Preenche a tabela de símbolos
+
+            // 5. Transpilador / Visitor
+            TarbaloTranspilador transpilador = new TarbaloTranspilador(analisador.getTabela());
             String codigoJava = transpilador.visit(tree);
 
-            // 5. Escrever o código Java gerado num ficheiro
-            try (PrintWriter pw = new PrintWriter("ProgramaSaida.java")) {
-                pw.print(codigoJava);
+            // 6. Escrever o código Java gerado num ficheiro
+            if (codigoJava != null) {
+                try (PrintWriter pw = new PrintWriter("ProgramaSaida.java")) {
+                    pw.print(codigoJava);
+                }
+                System.out.println("Transpilação concluída! Código gerado em ProgramaSaida.java");
             }
-            System.out.println("Transpilação concluída! Código gerado em ProgramaSaida.java");
 
-            // 6. Se houve erros semânticos, são exibidos durante a visita
+            // 7. Se houve erros semânticos na transpilação
             if (transpilador.houveErros()) {
-                System.err.println("Atenção: foram encontrados erros semânticos.");
+                System.err.println("Atenção: foram encontrados erros durante a geração do código.");
             }
 
         } catch (Exception e) {
