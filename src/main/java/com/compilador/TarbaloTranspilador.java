@@ -21,7 +21,6 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         erros = true;
     }
 
-    // Mapeamento de tipos Tarbalo → Java
     private String mapearTipo(String tipoTarbalo) {
         return switch (tipoTarbalo) {
             case "int"    -> "int";
@@ -46,7 +45,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     }
 
     // ======================================================================
-    // 1. visitPrograma (Atualizado para suportar Funções e Scanner Global)
+    // 1. visitPrograma
     // ======================================================================
     @Override
     public String visitPrograma(TarbaloParser.ProgramaContext ctx) {
@@ -63,12 +62,13 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
         StringBuilder sb = new StringBuilder();
         sb.append("import java.util.Scanner;\n\n");
+        sb.append("import java.util.Locale;\n\n");
         sb.append("public class ProgramaSaida {\n");
 
-        // O scanner agora é estático para ser acessível pelas funções
-        sb.append("    static Scanner scanner = new Scanner(System.in);\n\n");
+        // O scanner é estático para ser acessível pelas funções
+        sb.append("    static Scanner scanner = new Scanner(System.in).useLocale(Locale.US);\n\n");
 
-        // Insere as funções geradas ANTES do main()
+        // Insere as funções geradas antes do main()
         sb.append(funcoesGeradas.toString());
 
         sb.append("    public static void main(String[] args) {\n");
@@ -181,7 +181,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     }
 
     // ======================================================================
-    // 7. visitCmdSe (Lógica Condicional Corrigida com Indentação Escopada)
+    // 7. visitCmdSe
     // ======================================================================
     @Override
     public String visitCmdSe(TarbaloParser.CmdSeContext ctx) {
@@ -190,14 +190,12 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
         StringBuilder sb = new StringBuilder();
         sb.append("if (").append(condicao).append(") {\n");
-        // Recua o conteúdo interno do bloco SE em 4 espaços relativos
         sb.append(indentar(blocoSe, "    "));
         sb.append("}");
 
         if (ctx.SENAO() != null) {
             String blocoSenao = visit(ctx.bloco(1));
             sb.append(" else {\n");
-            // Recua o conteúdo interno do bloco SENAO em 4 espaços relativos
             sb.append(indentar(blocoSenao, "    "));
             sb.append("}");
         }
@@ -210,16 +208,13 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     // ======================================================================
     @Override
     public String visitOperando(TarbaloParser.OperandoContext ctx) {
-        // Se o operando for uma chamada de função, delega a tradução para o método correto!
         if (ctx.chamadaFuncao() != null) {
             return visit(ctx.chamadaFuncao());
         }
-        // Se for um acesso a vetor que requer tradução
         if (ctx.acessoVetor() != null) {
             return visit(ctx.acessoVetor());
         }
 
-        // Para números soltos, textos ou IDs, devolve o texto bruto
         return ctx.getText();
     }
 
@@ -231,7 +226,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     }
 
     // ======================================================================
-    // 9. Tratamento genérico de nós da árvore (Operadores) - CORRIGIDO
+    // 9. Tratamento genérico de nós da árvore (Operadores)
     // ======================================================================
     @Override
     public String visitChildren(org.antlr.v4.runtime.tree.RuleNode node) {
@@ -239,18 +234,17 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         for (int i = 0; i < node.getChildCount(); i++) {
             org.antlr.v4.runtime.tree.ParseTree child = node.getChild(i);
 
-            // Apanha os nós terminais (símbolos e operadores) ANTES de tentar visitá-los
             if (child instanceof org.antlr.v4.runtime.tree.TerminalNode) {
                 String texto = child.getText();
                 // Ignorar pontuação de delimitação que não vai para o Java
                 if (texto.equals(".") || texto.equals(";") || texto.equals("{") || texto.equals("}")) {
                     continue;
                 }
-                // Traduzir operadores lógicos do Tarbalo para Java
+                // Traduzir operadores lógicos do input para Java
                 if (texto.equals("e")) texto = "&&";
                 else if (texto.equals("ou")) texto = "||";
                 else if (texto.equals("nao")) texto = "!";
-                else if (texto.equals("=")) texto = "=="; // Em Tarbalo o = é comparação
+                else if (texto.equals("=")) texto = "==";
 
                 result.append(texto).append(" ");
             } else {
@@ -316,7 +310,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     }
 
     // ======================================================================
-    // 13. visitCmdParaCada (foreach - pancada)
+    // 13. visitCmdParaCada (foreach)
     // ======================================================================
     @Override
     public String visitCmdParaCada(TarbaloParser.CmdParaCadaContext ctx) {
@@ -348,7 +342,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
     @Override
     public String visitAtualizacaoPara(TarbaloParser.AtualizacaoParaContext ctx) {
-        return visitChildren(ctx); // Delega para os incrementos ou atribuições
+        return visitChildren(ctx);
     }
 
     @Override
@@ -401,7 +395,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         String tipoJava = mapearTipo(tipoTarbalo);
         String nomeVar = ctx.ID().getText();
 
-        // Prepara os colchetes para Java (suporta matrizes multi-dimensionais)
+        // Prepara os colchetes para Java
         StringBuilder colchetesJava = new StringBuilder();
         StringBuilder tamanhosJava = new StringBuilder();
 
@@ -432,7 +426,6 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
 
-        // Pega em todos os valores separados por ponto e vírgula
         for (int i = 0; i < ctx.expressao().size(); i++) {
             sb.append(visit(ctx.expressao(i)));
             if (i < ctx.expressao().size() - 1) {
@@ -450,8 +443,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     @Override
     public String visitAcessoVetor(TarbaloParser.AcessoVetorContext ctx) {
         StringBuilder sb = new StringBuilder();
-        sb.append(ctx.ID().getText()); // Nome do vetor
-
+        sb.append(ctx.ID().getText());
         for (TarbaloParser.AcessoDimensaoContext dimCtx : ctx.acessoDimensao()) {
             sb.append(visit(dimCtx));
         }
@@ -460,16 +452,16 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
     @Override
     public String visitAcessoDimensao(TarbaloParser.AcessoDimensaoContext ctx) {
-        // Retorna o índice entre colchetes (avaliando qualquer expressão matemática lá dentro)
+        // Retorna o índice entre colchetes
         return "[" + visit(ctx.expressao(0)) + "]";
     }
 
     // ======================================================================
-    // 19. Declaração de Função (ex: func int somar(int a ; int b) { ... } .)
+    // 19. Declaração de Função
     // ======================================================================
     @Override
     public String visitDeclaracaoFuncao(TarbaloParser.DeclaracaoFuncaoContext ctx) {
-        // Se a função não tiver retorno, assumimos "void". Pode adaptar se a sua gramática usar "vazio"
+        // Se a função não tiver retorno, assumimos "void".
         String tipoRetorno = ctx.tipoRetorno() != null ? mapearTipo(ctx.tipoRetorno().getText()) : "void";
         if (ctx.tipoRetorno() != null && ctx.tipoRetorno().getText().equals("vazio")) tipoRetorno = "void";
 
@@ -495,7 +487,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     }
 
     // ======================================================================
-    // 20. Parâmetros e Argumentos (Traduz o ';' do Tarbalo para a ',' do Java)
+    // 20. Parâmetros e Argumentos
     // ======================================================================
     @Override
     public String visitParametros(TarbaloParser.ParametrosContext ctx) {
@@ -513,10 +505,8 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     public String visitParametro(TarbaloParser.ParametroContext ctx) {
         String tipoJava = mapearTipo(ctx.tipoVariavel().getText());
 
-        // CORREÇÃO: Acedemos ao ID através da sub-regra variavel()
         String nomeVar = ctx.variavel().ID().getText();
 
-        // CORREÇÃO: Acedemos às dimensões também através da sub-regra variavel()
         StringBuilder colchetes = new StringBuilder();
         if (ctx.variavel().dimensaoVetor() != null) {
             for (int i = 0; i < ctx.variavel().dimensaoVetor().size(); i++) {
@@ -540,7 +530,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     }
 
     // ======================================================================
-    // 21. Chamada de Função (ex: somar(x ; y) )
+    // 21. Chamada de Função
     // ======================================================================
     @Override
     public String visitChamadaFuncao(TarbaloParser.ChamadaFuncaoContext ctx) {

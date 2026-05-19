@@ -36,7 +36,6 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             tabela.adicionar(nomeVar, tipoVariavel);
         }
 
-        // NOVIDADE: Validação de Tipo na inicialização (ex: var int x : 10.)
         if (ctx.ATRIBUICAO() != null) {
             AvaliadorDeTipos avaliador = new AvaliadorDeTipos(linha);
             String tipoExpressao = avaliador.visit(ctx.expressao());
@@ -83,7 +82,6 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             // Descobre o tipo da variável
             String tipoVariavel = tabela.obterTipo(nomeVar);
 
-            // CORREÇÃO AQUI: Se for acesso a vetor (ex: notas[i]), o tipo perde o "[]"
             if (ctx.selecaoVariavel().acessoVetor() != null && tipoVariavel != null && tipoVariavel.endsWith("[]")) {
                 tipoVariavel = tipoVariavel.replace("[]", "");
             }
@@ -152,7 +150,6 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
     /* ======================================================================
      * CLASSE INTERNA: AVALIADOR DE TIPOS
-     * (Um "mini-transpilador" focado apenas em descobrir se a matemática bate certo)
      * ====================================================================== */
     private class AvaliadorDeTipos extends TarbaloBaseVisitor<String> {
         private int linha;
@@ -197,7 +194,6 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             return super.visitExpressaoRelacional(ctx);
         }
 
-        // Agregador: Mistura o tipo da Esquerda com a Direita
         @Override
         protected String aggregateResult(String aggregate, String nextResult) {
             if (aggregate == null) return nextResult;
@@ -206,16 +202,13 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             if (aggregate.equals("erro") || nextResult.equals("erro")) return "erro";
             if (aggregate.equals("desconhecido") || nextResult.equals("desconhecido")) return "desconhecido";
 
-            // int + int = int, texto + texto = texto
             if (aggregate.equals(nextResult)) return aggregate;
 
-            // int + dec = dec
             if ((aggregate.equals("int") && nextResult.equals("dec")) ||
                     (aggregate.equals("dec") && nextResult.equals("int"))) {
                 return "dec";
             }
 
-            // Incompatível (ex: int + texto)
             System.err.println("Erro Semântico (Linha " + linha + "): Tipos incompatíveis na operação matemática ou lógica ('" + aggregate + "' com '" + nextResult + "')");
             return "erro";
         }

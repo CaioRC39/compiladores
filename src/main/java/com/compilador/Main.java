@@ -19,13 +19,12 @@ public class Main {
             // 3. Árvore sintática
             ParseTree tree = parser.programa();
 
-            // 4. Análise Semântica (Passagem 1)
+            // 4. Análise Semântica
             ParseTreeWalker walker = new ParseTreeWalker();
             AnalisadorSemantico analisador = new AnalisadorSemantico();
             walker.walk(analisador, tree); // Preenche a tabela de símbolos
 
-            // 5. Transpilador (Passagem 2)
-            // Passamos a tabela preenchida para o transpilador
+            // 5. Transpilador / Visitor
             TarbaloTranspilador transpilador = new TarbaloTranspilador(analisador.getTabela());
             String codigoJava = transpilador.visit(tree);
 

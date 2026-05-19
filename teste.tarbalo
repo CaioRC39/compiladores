@@ -1,18 +1,37 @@
 prog
-    # Declarando a função somar (fora ou dentro, o compilador joga para fora!)
-    func int somar(int a ; int b) {
-        var int res : a + b.
-        retorne res.
-    }.
+    var texto nome.
+    var int idade.
+    var dec altura.
+    var logico gostaDeProgramar.
+    var car inicial.
 
-    var int x : 10.
-    var int y : 20.
-    var int resultado.
+    escreva("=== TESTE COMPLETO DO SCANNER ===").
 
-    escreva("Calculando a soma via Funcao:").
+    escreva("Digite o seu primeiro nome: ").
+    leia(nome).
 
-    # Chamando a função separando os argumentos com ';'
-    resultado : somar(x ; y).
+    escreva("Digite a sua idade (inteiro): ").
+    leia(idade).
 
-    escreva(resultado).
+    escreva("Digite a sua altura (decimal, use virgula dependendo do seu sistema): ").
+    leia(altura).
+
+    escreva("Gosta de programar? (escreva true ou false): ").
+    leia(gostaDeProgramar).
+
+    escreva("Digite a inicial do seu apelido (1 caractere): ").
+    leia(inicial).
+
+    escreva("").
+    escreva("=== DADOS LIDOS COM SUCESSO ===").
+    escreva("Nome lido: ").
+    escreva(nome).
+    escreva("Idade lida: ").
+    escreva(idade).
+    escreva("Altura lida: ").
+    escreva(altura).
+    escreva("Gosta de programar: ").
+    escreva(gostaDeProgramar).
+    escreva("Inicial lida: ").
+    escreva(inicial).
 fimprog.
