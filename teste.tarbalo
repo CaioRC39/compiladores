@@ -1,21 +1,18 @@
 prog
-    # Declarando variáveis
-    int a, b.
-    texto mensagem.
-
-    # Atribuindo valores
-    a : 10.
-    b : 20.
-    mensagem : "Iniciando o teste".
-
-    # Exibindo e lendo
-    escreva(mensagem).
-    leia(a).
-
-    # Testando condicional e cálculo
-    se (a < b) {
-        a : a + b.
-        c : 10
-        escreva("A e menor").
+    # Declarando a função somar (fora ou dentro, o compilador joga para fora!)
+    func int somar(int a ; int b) {
+        var int res : a + b.
+        retorne res.
     }.
+
+    var int x : 10.
+    var int y : 20.
+    var int resultado.
+
+    escreva("Calculando a soma via Funcao:").
+
+    # Chamando a função separando os argumentos com ';'
+    resultado : somar(x ; y).
+
+    escreva(resultado).
 fimprog.
