@@ -233,7 +233,7 @@ cmdPara:
 ;
 
 atribuicaoPara:
-    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) expressao
+    selecaoVariavel ((ATRIBUICAO | operadorAtribuicaoComposta) expressao)?
 ;
 
 atualizacaoPara:
