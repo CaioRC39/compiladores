@@ -1,5 +1,5 @@
 // Generated from com/compilador/tarbalo/Tarbalo.g4 by ANTLR 4.13.1
-package com.compilador.tarbalo; 
+package com.compilador.tarbalo;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -185,6 +185,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCmdBloco(TarbaloParser.CmdBlocoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCmdBloco(TarbaloParser.CmdBlocoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterLeitura(TarbaloParser.LeituraContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -324,6 +336,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCmdPara(TarbaloParser.CmdParaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

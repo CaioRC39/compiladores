@@ -296,7 +296,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     @Override
     public String visitCmdPara(TarbaloParser.CmdParaContext ctx) {
         // Usa métodos auxiliares criados abaixo para a assinatura do For
-        String inicializacao = visit(ctx.atribuicaoPara());
+        String inicializacao = visit(ctx.inicializacaoPara());
         String condicao = visit(ctx.expressao());
         String atualizacao = visit(ctx.atualizacaoPara());
         String blocoLoop = visit(ctx.bloco());

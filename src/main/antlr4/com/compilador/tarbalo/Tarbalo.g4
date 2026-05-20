@@ -117,12 +117,18 @@ comando:
     | cmdFacaEnquanto
     | cmdPara
     | cmdParaCada
+    | cmdBloco
     | retorno
     | pare
     | continuar
     | incrementoPonto
     | decrementoPonto
     | chamadaFuncao PONTO
+;
+
+cmdBloco:
+    ABRECHAVE bloco FECHACHAVE
+    PONTO
 ;
 
 // -----------------------------------------------------------------------
@@ -222,7 +228,7 @@ cmdFacaEnquanto:
 cmdPara:
     PARA
     ABREPARENTE
-      atribuicaoPara PONTO
+      inicializacaoPara PONTO
       expressao PONTO
       atualizacaoPara
     FECHAPARENTE
@@ -232,8 +238,13 @@ cmdPara:
     PONTO
 ;
 
+inicializacaoPara:
+    atribuicaoPara
+    | VARIAVEL tipoVariavel ID ATRIBUICAO expressao
+;
+
 atribuicaoPara:
-    selecaoVariavel ((ATRIBUICAO | operadorAtribuicaoComposta) expressao)?
+    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) expressao
 ;
 
 atualizacaoPara:
@@ -331,6 +342,7 @@ operando:
     | acessoVetor
     | chamadaFuncao
     | ABREPARENTE expressao FECHAPARENTE
+    | inicializacaoVetor
 ;
 
 // ---------- 10. Acesso a vetor ----------

@@ -95,6 +95,12 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitComando(TarbaloParser.ComandoContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TarbaloParser#cmdBloco}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCmdBloco(TarbaloParser.CmdBlocoContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#leitura}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -166,6 +172,12 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCmdPara(TarbaloParser.CmdParaContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TarbaloParser#inicializacaoPara}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#atribuicaoPara}.
 	 * @param ctx the parse tree
