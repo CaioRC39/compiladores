@@ -13,7 +13,7 @@ prog
     escreva("Digite a sua idade (inteiro): ").
     leia(idade).
 
-    escreva("Digite a sua altura (decimal, use virgula dependendo do seu sistema): ").
+    escreva("Digite a sua altura (com ponto): ").
     leia(altura).
 
     escreva("Gosta de programar? (escreva true ou false): ").
