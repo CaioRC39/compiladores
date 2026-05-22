@@ -185,6 +185,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCmdBloco(TarbaloParser.CmdBlocoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCmdBloco(TarbaloParser.CmdBlocoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterLeitura(TarbaloParser.LeituraContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -324,6 +336,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCmdPara(TarbaloParser.CmdParaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

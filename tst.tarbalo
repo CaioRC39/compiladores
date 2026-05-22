@@ -1,0 +1,120 @@
+prog
+    # -----------------------------------------------------------------
+    # Bloco 1 – Declarações e inicializações globais
+    # -----------------------------------------------------------------
+    {
+        # Variáveis simples
+        var int a.
+        var dec b: 3,14.
+        var texto c: "Olá".
+        var car d: 'T'.
+        var logico e: VDD.
+
+        # Vetores estáticos
+        vtr int v[3]: [1; 2; 3].
+        vtr dec w[]: [0,0; 1,1; 2,2].
+        vtr texto x[2]: ["casa"; "carro"].
+
+        # Atribuições e operadores matemáticos (precedência)
+        a: 10 + 5 * 2.               # 20
+        a: a +: 1.                   # +=
+        a++.                         # incremento
+        a--.                         # decremento
+
+        # Escrita com múltiplas expressões
+        escreva("Valor de a:"; a; " b:"; b).
+    }
+
+    # -----------------------------------------------------------------
+    # Bloco 2 – Estruturas de controlo, funções e vetores dinâmicos
+    # -----------------------------------------------------------------
+    {
+        var int cont: 0.
+        var int i: 0.
+
+        # Condicional se / senao
+        se (a > 10) {
+            escreva("a é maior que 10").
+        } senao {
+            escreva("a é menor ou igual a 10").
+        }.
+
+        # Laço enquanto
+        enquanto (cont < 3) {
+            escreva("Contador:"; cont).
+            cont++.
+        }.
+
+        # Laço faca-enquanto
+        faca {
+            escreva("Faca-enquanto cont:"; cont).
+            cont++.
+        } enquanto (cont < 5).
+
+        # Laço para (i declarada fora)
+        i: 0.
+        para (i: 0. i < 3. i++) {
+            escreva("Para i:"; i).
+        }.
+
+        # Laço paracada (foreach)
+        escreva("Elementos de v:").
+        pancada (var int elem em v) {
+            escreva(elem).
+        }.
+
+        # Funções definidas pelo utilizador
+        func int dobrar(int x) {
+            retorne x * 2.
+        }.
+
+        func vazio imprimirSoma(int y; int z) {
+            escreva("Soma:"; y + z).
+        }.
+
+        # Chamadas de funções
+        a: dobrar(a).
+        imprimirSoma(3; 4).
+
+        # Operações com vetores (funções embutidas)
+        escreva("Tamanho de v:"; tamanho(v)).
+        redim(v; 5).
+        anexar(v; 99).
+        inserir(v; 2; 50).
+        remover(v; 1).
+        ordenar(v).
+        inverter(v).
+        escreva("Vetor v modificado:").
+        paracada (var int elem em v) {
+            escreva(elem).
+        }.
+
+        # Comandos de controlo de fluxo (pare, continuar)
+        var int k: 0.
+        enquanto (VDD) {
+            k++.
+            se (k > 2) {
+                pare.
+            }.
+        }.
+
+        var int m: 0.
+        enquanto (m < 5) {
+            m++.
+            se (m = 3) {
+                continuar.
+            }.
+            escreva("m:"; m).
+        }.
+
+        # Concatenação e atribuição composta
+        var texto saudacao: "Oi".
+        saudacao &: ", mundo!".
+        escreva(saudacao).
+
+        # Fatiamento de vetor (slice)
+        escreva("Fatia de v[0..1]:"; v[0..1]).
+
+        escreva("Fim do programa.").
+    }.
+fimprog.

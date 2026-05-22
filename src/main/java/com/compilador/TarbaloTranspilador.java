@@ -419,10 +419,19 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     // ======================================================================
     @Override
     public String visitCmdPara(TarbaloParser.CmdParaContext ctx) {
+<<<<<<< HEAD
         String inicializacao = visit(ctx.atribuicaoPara());
         String condicao      = visit(ctx.expressao());
         String atualizacao   = visit(ctx.atualizacaoPara());
         String blocoLoop     = visit(ctx.bloco());
+=======
+        // Usa métodos auxiliares criados abaixo para a assinatura do For
+        String inicializacao = visit(ctx.inicializacaoPara());
+        String condicao = visit(ctx.expressao());
+        String atualizacao = visit(ctx.atualizacaoPara());
+        String blocoLoop = visit(ctx.bloco());
+
+>>>>>>> 4557d42efbd471e60149c334367f2403e0e8738b
         StringBuilder sb = new StringBuilder();
         sb.append("for (").append(inicializacao).append("; ")
                 .append(condicao).append("; ").append(atualizacao).append(") {\n");

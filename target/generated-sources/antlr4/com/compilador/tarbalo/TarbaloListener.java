@@ -148,6 +148,16 @@ public interface TarbaloListener extends ParseTreeListener {
 	 */
 	void exitComando(TarbaloParser.ComandoContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link TarbaloParser#cmdBloco}.
+	 * @param ctx the parse tree
+	 */
+	void enterCmdBloco(TarbaloParser.CmdBlocoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TarbaloParser#cmdBloco}.
+	 * @param ctx the parse tree
+	 */
+	void exitCmdBloco(TarbaloParser.CmdBlocoContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#leitura}.
 	 * @param ctx the parse tree
 	 */
@@ -267,6 +277,16 @@ public interface TarbaloListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCmdPara(TarbaloParser.CmdParaContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TarbaloParser#inicializacaoPara}.
+	 * @param ctx the parse tree
+	 */
+	void enterInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TarbaloParser#inicializacaoPara}.
+	 * @param ctx the parse tree
+	 */
+	void exitInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#atribuicaoPara}.
 	 * @param ctx the parse tree
