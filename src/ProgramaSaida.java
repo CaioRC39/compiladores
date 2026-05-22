@@ -16,7 +16,7 @@ public class ProgramaSaida {
         nome = scanner.next();
         System.out.println("Digite a sua idade (inteiro): ");
         idade = scanner.nextInt();
-        System.out.println("Digite a sua altura (decimal, use virgula dependendo do seu sistema): ");
+        System.out.println("Digite a sua altura (com ponto): ");
         altura = scanner.nextDouble();
         System.out.println("Gosta de programar? (escreva true ou false): ");
         gostaDeProgramar = scanner.nextBoolean();
