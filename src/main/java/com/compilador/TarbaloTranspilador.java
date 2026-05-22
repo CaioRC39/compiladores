@@ -419,19 +419,11 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     // ======================================================================
     @Override
     public String visitCmdPara(TarbaloParser.CmdParaContext ctx) {
-<<<<<<< HEAD
-        String inicializacao = visit(ctx.atribuicaoPara());
+        String inicializacao = visit(ctx.inicializacaoPara());
         String condicao      = visit(ctx.expressao());
         String atualizacao   = visit(ctx.atualizacaoPara());
         String blocoLoop     = visit(ctx.bloco());
-=======
-        // Usa métodos auxiliares criados abaixo para a assinatura do For
-        String inicializacao = visit(ctx.inicializacaoPara());
-        String condicao = visit(ctx.expressao());
-        String atualizacao = visit(ctx.atualizacaoPara());
-        String blocoLoop = visit(ctx.bloco());
 
->>>>>>> 4557d42efbd471e60149c334367f2403e0e8738b
         StringBuilder sb = new StringBuilder();
         sb.append("for (").append(inicializacao).append("; ")
                 .append(condicao).append("; ").append(atualizacao).append(") {\n");
@@ -455,6 +447,22 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         sb.append(indentar(blocoLoop, "    "));
         sb.append("}");
         return sb.toString();
+    }
+
+    @Override
+    public String visitInicializacaoPara(TarbaloParser.InicializacaoParaContext ctx) {
+        // Se for apenas uma atribuição (ex: i : 0)
+        if (ctx.atribuicaoPara() != null) {
+            return visit(ctx.atribuicaoPara());
+        }
+        // Se for uma declaração completa de variável (ex: var int i : 0)
+        if (ctx.VARIAVEL() != null) {
+            String tipoJava = mapearTipo(ctx.tipoVariavel().getText());
+            String nomeVar = ctx.ID().getText();
+            String valor = visit(ctx.expressao());
+            return tipoJava + " " + nomeVar + " = " + valor; // Sem ponto e vírgula no final, pois o for já os coloca
+        }
+        return "";
     }
 
     // ======================================================================

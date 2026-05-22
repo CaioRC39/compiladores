@@ -279,9 +279,16 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     public void exitCmdFacaEnquanto(TarbaloParser.CmdFacaEnquantoContext ctx) { nivelLaco--; }
 
     @Override
-    public void enterCmdPara(TarbaloParser.CmdParaContext ctx) { nivelLaco++; }
+    public void enterCmdPara(TarbaloParser.CmdParaContext ctx) {
+        nivelLaco++;
+        tabela.abrirEscopo(); // NOVO: Impede que as variáveis do 'para' vazem para fora
+    }
+
     @Override
-    public void exitCmdPara(TarbaloParser.CmdParaContext ctx) { nivelLaco--; }
+    public void exitCmdPara(TarbaloParser.CmdParaContext ctx) {
+        tabela.fecharEscopo(); // NOVO: Limpa o escopo ao sair do 'para'
+        nivelLaco--;
+    }
 
     @Override
     public void enterCmdParaCada(TarbaloParser.CmdParaCadaContext ctx) {
