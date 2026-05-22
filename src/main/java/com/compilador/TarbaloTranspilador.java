@@ -449,10 +449,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     }
 
     // ======================================================================
-    // 14. Auxiliares do FOR e Incrementos  (CORRIGIDO)
-    //    visitAtribuicaoPara: usa visitSelecaoVariavel e visitOperadorAtribuicaoComposta
-    //    visitAtualizacaoPara: despacha explicitamente em vez de usar visitChildren
-    //    visitIncremento / visitDecremento: usam visitSelecaoVariavel
+    // 14. Auxiliares do FOR e Incrementos
     // ======================================================================
     @Override
     public String visitAtribuicaoPara(TarbaloParser.AtribuicaoParaContext ctx) {
@@ -554,9 +551,6 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
     // ======================================================================
     // 18. Vetores: Acesso e Fatiamento  (CORRIGIDO)
-    //    visitAcessoDimensao trata agora o PONTOPONTO (fatiamento).
-    //    Como o nome do vetor não está disponível neste nível, delega-se
-    //    o fatiamento a visitAcessoVetor quando PONTOPONTO for detetado.
     // ======================================================================
     @Override
     public String visitAcessoVetor(TarbaloParser.AcessoVetorContext ctx) {
@@ -663,7 +657,6 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
     // ======================================================================
     // Despachante genérico para Declarações
-    // (despacho explícito — sem depender do visitChildren frágil)
     // ======================================================================
     @Override
     public String visitDeclaracao(TarbaloParser.DeclaracaoContext ctx) {
