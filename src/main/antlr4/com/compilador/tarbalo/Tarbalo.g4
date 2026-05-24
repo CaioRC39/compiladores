@@ -7,15 +7,14 @@
 
 grammar Tarbalo;
 
-@header { package com.compilador.tarbalo; }
-
 /* ======================================================================
    I. ESTRUTURA DO PROGRAMA
    ====================================================================== */
 
 programa:
     INICIO
-      bloco+
+        (diretiva)*
+        bloco+
     FIM
     PONTO
     EOF
@@ -52,19 +51,23 @@ tipoVariavel:
     | BOOLEANO_TIPO
 ;
 
+tipoComposto:
+    tipoVariavel dimensaoVetor*
+;
+
 tipoRetorno:
-    tipoVariavel
+    tipoComposto
     | VAZIO
 ;
 
 dimensaoVetor:
     ABRECOLCHETE
-        NUM?
+        expressao?
     FECHACOLCHETE
 ;
 
 declaracaoVetor:
-    VETOR tipoVariavel ID dimensaoVetor+ (ATRIBUICAO inicializacaoVetor)?
+    VETOR tipoVariavel ID dimensaoVetor+ (ATRIBUICAO valorAtribuicao)?
     PONTO
 ;
 
@@ -74,6 +77,11 @@ inicializacaoVetor:
             expressao (PONTIVIRGULA expressao)*
         )?
     FECHACOLCHETE
+;
+
+valorAtribuicao:
+    expressao
+    | inicializacaoVetor
 ;
 
 // -----------------------------------------------------------------------
@@ -92,7 +100,7 @@ declaracaoFuncao:
 ;
 
 parametros:
-    parametro (PONTIVIRGULA parametro)*
+    parametro (PONTO parametro)*
 ;
 
 parametro:
@@ -117,7 +125,7 @@ comando:
     | cmdFacaEnquanto
     | cmdPara
     | cmdParaCada
-    | cmdBloco
+    | cmdBloco PONTO
     | retorno
     | pare
     | continuar
@@ -128,6 +136,10 @@ comando:
 
 cmdBloco:
     ABRECHAVE bloco FECHACHAVE
+;
+
+diretiva:
+    PACOTE STRING
     PONTO
 ;
 
@@ -161,7 +173,7 @@ selecaoVariavel:
 ;
 
 atribuicao:
-    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) expressao
+    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
     PONTO
 ;
 
@@ -244,7 +256,7 @@ inicializacaoPara:
 ;
 
 atribuicaoPara:
-    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) expressao
+    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
 ;
 
 atualizacaoPara:
@@ -342,7 +354,6 @@ operando:
     | acessoVetor
     | chamadaFuncao
     | ABREPARENTE expressao FECHAPARENTE
-    | inicializacaoVetor
 ;
 
 // ---------- 10. Acesso a vetor ----------
@@ -387,7 +398,6 @@ operadorAtribuicaoComposta:
     | MULT_ATRIBUICAO
     | DIV_ATRIBUICAO
     | MOD_ATRIBUICAO
-    | CONCAT_ATRIBUICAO
 ;
 
 /* ======================================================================
@@ -398,31 +408,32 @@ operadorAtribuicaoComposta:
 // A. Palavras reservadas
 // -----------------------------------------------------------------------
 
-INICIO          : 'prog';
-FIM             : 'fimprog';
-VARIAVEL        : 'var';
-VETOR           : 'vtr';
+INICIO          : 'bora';
+FIM             : 'flw';
+VARIAVEL        : 'bglh';
+VETOR           : 'bond';
 INTEIRO         : 'int';
-DECIMAL         : 'dec';
-CARACTERE       : 'car';
-TEXTO_TIPO      : 'texto';
-BOOLEANO_TIPO   : 'logico';
+DECIMAL         : 'qbd';
+CARACTERE       : 'ltr';
+TEXTO_TIPO      : 'txt';
+BOOLEANO_TIPO   : 'lgc';
 VAZIO           : 'vazio';
 FUNCAO          : 'func';
-RETORNE         : 'retorne';
-LEIA            : 'leia';
-ESCREVA         : 'escreva';
-SE              : 'se';
-SENAO           : 'senao';
+RETORNE         : 'receba';
+LEIA            : 'espia';
+ESCREVA         : 'manda';
+SE              : 'sepa';
+SENAO           : 'vish';
 ENQUANTO        : 'enquanto';
 FACA            : 'faca';
 PARA            : 'para';
 PARACADA        : 'pancada';
 EM              : 'em';
-PARE            : 'pare';
-CONTINUAR       : 'continuar';
+PARE            : 'morre';
+CONTINUAR       : 'dale';
 VERDADEIRO      : 'VDD';
 FALSO           : 'FAKE';
+PACOTE          : 'usar';
 
 // -----------------------------------------------------------------------
 // B. Operadores
@@ -433,7 +444,6 @@ SUBTRACAO_ATRIBUICAO : '-:';
 MULT_ATRIBUICAO      : '*:';
 DIV_ATRIBUICAO       : '/:';
 MOD_ATRIBUICAO       : '%:';
-CONCAT_ATRIBUICAO    : '&:';
 INCREMENTO           : '++';
 DECREMENTO           : '--';
 PONTOPONTO           : '..';
@@ -445,12 +455,12 @@ DIV                  : '/';
 MOD                  : '%';
 CONCAT               : '&';
 ATRIBUICAO           : ':';
-MENOR                : '<';
-MAIOR                : '>';
 MENORIGUAL           : '<=';
 MAIORIGUAL           : '>=';
-IGUAL                : '=';
 DIFERENTE            : '!=';
+MENOR                : '<';
+MAIOR                : '>';
+IGUAL                : '=';
 NAO                  : 'nao';
 E                    : 'e';
 OU                   : 'ou';

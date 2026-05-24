@@ -1,75 +1,88 @@
-prog
+bora
+    usar "C:\Users\crebo\OneDrive\Documentos\Faculdade\Compiladores\mini-compilador\bondlib.tarbalo".
     # -----------------------------------------------------------------
     # Bloco 1 – Declarações e inicializações globais
     # -----------------------------------------------------------------
     {
         # Variáveis simples
-        var int a.
-        var dec b: 3,14.
-        var texto c: "Olá".
-        var car d: 'T'.
-        var logico e: VDD.
+        bglh int a.
+        bglh qbd b: 3,14.
+        bglh txt c: "Olá".
+        bglh ltr d: 'T'.
+        bglh lgc f: VDD.
 
         # Vetores estáticos
-        vtr int v[3]: [1; 2; 3].
-        vtr dec w[]: [0,0; 1,1; 2,2].
-        vtr texto x[2]: ["casa"; "carro"].
+        bond int v[3]: [1; 2; 3].
+        bond qbd w[]: [0,0; 1,1; 2,2].
+        bond txt x[2]: ["casa"; "carro"].
 
         # Atribuições e operadores matemáticos (precedência)
         a: 10 + 5 * 2.               # 20
-        a: a +: 1.                   # +=
+        a +: 1.                      # +=
         a++.                         # incremento
         a--.                         # decremento
 
         # Escrita com múltiplas expressões
-        escreva("Valor de a:"; a; " b:"; b).
-    }
+        manda("Valor de a:"; a; " b:"; b).
+    }.
 
     # -----------------------------------------------------------------
     # Bloco 2 – Estruturas de controlo, funções e vetores dinâmicos
     # -----------------------------------------------------------------
     {
-        var int cont: 0.
-        var int i: 0.
+        # Variáveis simples
+        bglh int a.
+        bglh qbd b: 3,14.
+        bglh txt c: "Olá".
+        bglh ltr d: 'T'.
+        bglh lgc f: VDD.
 
-        # Condicional se / senao
-        se (a > 10) {
-            escreva("a é maior que 10").
-        } senao {
-            escreva("a é menor ou igual a 10").
+        # Vetores estáticos
+        bond int v[3]: [1; 2; 3].
+        bond qbd w[]: [0,0; 1,1; 2,2].
+        bond txt x[2]: ["casa"; "carro"].
+
+        bglh int cont: 0.
+        bglh int i: 0.
+
+        # Condicional sepa / vish
+        sepa (a > 10) {
+            manda("a é maior que 10").
+        } vish {
+            manda("a é menor ou igual a 10").
         }.
 
         # Laço enquanto
         enquanto (cont < 3) {
-            escreva("Contador:"; cont).
+            manda("Contador:"; cont).
             cont++.
         }.
 
         # Laço faca-enquanto
         faca {
-            escreva("Faca-enquanto cont:"; cont).
+            manda("Faca-enquanto cont:"; cont).
             cont++.
         } enquanto (cont < 5).
 
         # Laço para (i declarada fora)
         i: 0.
         para (i: 0. i < 3. i++) {
-            escreva("Para i:"; i).
+            manda("Para i:"; i).
         }.
 
         # Laço paracada (foreach)
-        escreva("Elementos de v:").
-        pancada (var int elem em v) {
-            escreva(elem).
+        manda("Elementos de v:").
+        pancada (bglh int elem em v) {
+            manda(elem).
         }.
 
         # Funções definidas pelo utilizador
         func int dobrar(int x) {
-            retorne x * 2.
+            receba x * 2.
         }.
 
         func vazio imprimirSoma(int y; int z) {
-            escreva("Soma:"; y + z).
+            manda("Soma:"; y + z).
         }.
 
         # Chamadas de funções
@@ -77,44 +90,38 @@ prog
         imprimirSoma(3; 4).
 
         # Operações com vetores (funções embutidas)
-        escreva("Tamanho de v:"; tamanho(v)).
-        redim(v; 5).
+        manda("Tamanho de v:"; tamanho(v)).
         anexar(v; 99).
         inserir(v; 2; 50).
         remover(v; 1).
         ordenar(v).
         inverter(v).
-        escreva("Vetor v modificado:").
-        paracada (var int elem em v) {
-            escreva(elem).
+        manda("Vetor v modificado:").
+        pancada (bglh int elem em v) {
+            manda(elem).
         }.
 
         # Comandos de controlo de fluxo (pare, continuar)
-        var int k: 0.
+        bglh int k: 0.
         enquanto (VDD) {
             k++.
-            se (k > 2) {
-                pare.
+            sepa (k > 2) {
+                morre.
             }.
         }.
 
-        var int m: 0.
+        bglh int m: 0.
         enquanto (m < 5) {
             m++.
-            se (m = 3) {
-                continuar.
+            sepa (m = 3) {
+                dale.
             }.
-            escreva("m:"; m).
+            manda("m:"; m).
         }.
 
-        # Concatenação e atribuição composta
-        var texto saudacao: "Oi".
-        saudacao &: ", mundo!".
-        escreva(saudacao).
-
         # Fatiamento de vetor (slice)
-        escreva("Fatia de v[0..1]:"; v[0..1]).
+        manda("Fatia de v[0..1]:"; v[0..1]).
 
-        escreva("Fim do programa.").
+        manda("Fim do programa.").
     }.
-fimprog.
+flw.

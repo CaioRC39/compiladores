@@ -58,6 +58,16 @@ public interface TarbaloListener extends ParseTreeListener {
 	 */
 	void exitTipoVariavel(TarbaloParser.TipoVariavelContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link TarbaloParser#tipoComposto}.
+	 * @param ctx the parse tree
+	 */
+	void enterTipoComposto(TarbaloParser.TipoCompostoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TarbaloParser#tipoComposto}.
+	 * @param ctx the parse tree
+	 */
+	void exitTipoComposto(TarbaloParser.TipoCompostoContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#tipoRetorno}.
 	 * @param ctx the parse tree
 	 */
@@ -97,6 +107,16 @@ public interface TarbaloListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInicializacaoVetor(TarbaloParser.InicializacaoVetorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TarbaloParser#valorAtribuicao}.
+	 * @param ctx the parse tree
+	 */
+	void enterValorAtribuicao(TarbaloParser.ValorAtribuicaoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TarbaloParser#valorAtribuicao}.
+	 * @param ctx the parse tree
+	 */
+	void exitValorAtribuicao(TarbaloParser.ValorAtribuicaoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#declaracaoFuncao}.
 	 * @param ctx the parse tree
@@ -157,6 +177,16 @@ public interface TarbaloListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCmdBloco(TarbaloParser.CmdBlocoContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TarbaloParser#diretiva}.
+	 * @param ctx the parse tree
+	 */
+	void enterDiretiva(TarbaloParser.DiretivaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TarbaloParser#diretiva}.
+	 * @param ctx the parse tree
+	 */
+	void exitDiretiva(TarbaloParser.DiretivaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#leitura}.
 	 * @param ctx the parse tree

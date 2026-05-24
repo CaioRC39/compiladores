@@ -77,6 +77,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTipoComposto(TarbaloParser.TipoCompostoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTipoComposto(TarbaloParser.TipoCompostoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTipoRetorno(TarbaloParser.TipoRetornoContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -120,6 +132,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInicializacaoVetor(TarbaloParser.InicializacaoVetorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterValorAtribuicao(TarbaloParser.ValorAtribuicaoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitValorAtribuicao(TarbaloParser.ValorAtribuicaoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -192,6 +216,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCmdBloco(TarbaloParser.CmdBlocoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDiretiva(TarbaloParser.DiretivaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDiretiva(TarbaloParser.DiretivaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

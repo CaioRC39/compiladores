@@ -7,7 +7,7 @@ prog
         var dec b: 3,14.
         var texto c: "Olá".
         var car d: 'T'.
-        var logico ee: VDD.
+        var logico f: VDD.
 
         # Vetores estáticos
         vtr int v[3]: [1; 2; 3].
@@ -16,9 +16,10 @@ prog
 
         # Atribuições e operadores matemáticos (precedência)
         a: 10 + 5 * 2.               # 20
-        #a: a +: 1.                   # +=
         a++.                         # incremento
         a--.                         # decremento
+
+        b+: 3,14.
 
         # Escrita com múltiplas expressões
         escreva("Valor de a:"; a; " b:"; b).

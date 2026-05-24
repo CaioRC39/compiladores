@@ -1,0 +1,92 @@
+# ============================================================
+# Biblioteca padrão Tarbalo – vetores
+# ============================================================
+
+# ---------- int[] ----------
+func int tamanho_int(int[] arr) { receba tamanho(arr) }. # usando built-in
+
+func int[] slice1d_int(int[] arr. int ini. int fimExcl) {
+    bglh int tam: fimExcl - ini.
+    sepa (tam <= 0) { receba novo int[0]. }.
+    bglh int[] res: novo int[tam].
+    para (bglh int i : 0. i < tam. i : i + 1) { res[i] : arr[ini + i]. }
+    receba res.
+}
+func int[][] slice2d_int(int[][] arr. int ini0. int fimExcl0. int ini1. int fimExcl1) {
+    bglh int lin : fimExcl0 - ini0. bglh int col : fimExcl1 - ini1.
+    sepa (lin <= 0 ou col <= 0) { receba novo int[0][0]. }
+    bglh int[][] res : novo int[lin][col].
+    para bglh int i : 0. i < lin. i : i + 1 {
+        para bglh int j : 0. j < col. j : j + 1 { res[i][j] : arr[ini0 + i][ini1 + j]. }
+    }
+    receba res.
+}
+# slice3d_int similar...
+
+func int[] anexar_int(int[] arr. int elem) {
+    bglh int tam : tamanho(arr).
+    bglh int[] novo : novo int[tam + 1].
+    para bglh int i : 0. i < tam. i : i + 1 { novo[i] : arr[i]. }
+    novo[tam] : elem.
+    receba novo.
+}
+func int[] inserir_int(int[] arr. int pos. int elem) {
+    bglh int tam : tamanho(arr).
+    bglh int[] novo : novo int[tam + 1].
+    para bglh int i : 0. i < pos. i : i + 1 { novo[i] : arr[i]. }
+    novo[pos] : elem.
+    para bglh int i : pos. i < tam. i : i + 1 { novo[i+1] : arr[i]. }
+    receba novo.
+}
+func int[] remover_int(int[] arr. int pos) {
+    bglh int tam : tamanho(arr).
+    bglh int[] novo : novo int[tam - 1].
+    para bglh int i : 0. i < pos. i : i + 1 { novo[i] : arr[i]. }
+    para bglh int i : pos+1. i < tam. i : i + 1 { novo[i-1] : arr[i]. }
+    receba novo.
+}
+func vazio ordenar_int(int[] arr) {
+    bglh int n : tamanho(arr).
+    para bglh int i : 0. i < n-1. i : i + 1 {
+        para bglh int j : 0. j < n-i-1. j : j + 1 {
+            sepa (arr[j] > arr[j+1]) {
+                bglh int t : arr[j]. arr[j] : arr[j+1]. arr[j+1] : t.
+            }
+        }
+    }
+}
+func vazio inverter_int(int[] arr) {
+    bglh int n : tamanho(arr).
+    para bglh int i : 0. i < n/2. i : i + 1 {
+        bglh int t : arr[i]. arr[i] : arr[n-1-i]. arr[n-1-i] : t.
+    }
+}
+func int[] redim_int(int[] arr. int novoTam) {
+    bglh int tam : tamanho(arr).
+    bglh int[] novo : novo int[novoTam].
+    bglh int lim : novoTam.
+    sepa (tam < lim) { lim : tam. }
+    para bglh int i : 0. i < lim. i : i + 1 { novo[i] : arr[i]. }
+    receba novo.
+}
+
+# ---------- dec[] (double) ----------
+# Repetir o mesmo padrão, substituindo 'int' por 'dec' nos nomes e tipos.
+func int tamanho_dec(dec[] arr) { receba tamanho(arr). }
+func dec[] slice1d_dec(dec[] arr. int ini. int fimExcl) { ... }
+# anexar_dec, inserir_dec, remover_dec, ordenar_dec, inverter_dec, redim_dec
+
+# ---------- texto[] (String) ----------
+func int tamanho_str(texto[] arr) { receba tamanho(arr). }
+func texto[] slice1d_str(texto[] arr. int ini. int fimExcl) { ... }
+# anexar_str, inserir_str, remover_str, ordenar_str, inverter_str, redim_str
+
+# ---------- car[] (char) ----------
+func int tamanho_char(car[] arr) { receba tamanho(arr). }
+func car[] slice1d_char(car[] arr. int ini. int fimExcl) { ... }
+# ...
+
+# ---------- logico[] (boolean) ----------
+func int tamanho_logico(logico[] arr) { receba tamanho(arr). }
+func logico[] slice1d_logico(logico[] arr. int ini. int fimExcl) { ... }
+# ...

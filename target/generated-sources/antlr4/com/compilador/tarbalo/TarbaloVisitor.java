@@ -41,6 +41,12 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTipoVariavel(TarbaloParser.TipoVariavelContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TarbaloParser#tipoComposto}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTipoComposto(TarbaloParser.TipoCompostoContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#tipoRetorno}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -64,6 +70,12 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInicializacaoVetor(TarbaloParser.InicializacaoVetorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TarbaloParser#valorAtribuicao}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValorAtribuicao(TarbaloParser.ValorAtribuicaoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#declaracaoFuncao}.
 	 * @param ctx the parse tree
@@ -100,6 +112,12 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCmdBloco(TarbaloParser.CmdBlocoContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TarbaloParser#diretiva}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDiretiva(TarbaloParser.DiretivaContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#leitura}.
 	 * @param ctx the parse tree
