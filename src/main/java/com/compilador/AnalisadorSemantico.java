@@ -9,13 +9,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 public class AnalisadorSemantico extends TarbaloBaseListener {
 
-    private TabelaSimbolos tabela = new TabelaSimbolos();
+    private TabelaSimbolos tabela;
 
     // Para controle de contexto (funções, laços)
     private Deque<String> pilhaRetornos = new ArrayDeque<>(); // tipo de retorno da função atual
     private Map<ParseTree, Simbolo> mapaResolucao = new HashMap<>();
+    private Map<ParseTree, String> mapaTiposExpressao = new HashMap<>();
     private int nivelLaco = 0;
-    private int nivelBlocoControle = 0;   // quantos comandos de controle (se, enquanto, ...) estamos dentro
     private boolean dentroDeFuncao = false;
 
     private boolean erros = false;
@@ -32,6 +32,14 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
     public Simbolo obterResolucao(ParseTree ctx) {
         return mapaResolucao.get(ctx);
+    }
+
+    /**
+     * Consulta o tipo inferido de uma expressão.
+     * Usado pelo Transpilador para saber como traduzir operadores relacionais.
+     */
+    public String consultarTipo(ParseTree ctx) {
+        return mapaTiposExpressao.getOrDefault(ctx, "desconhecido");
     }
 
     /* ---------------------------------------------------------------------
@@ -90,7 +98,6 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         String tipoBase = ctx.tipoVariavel().getText();
         String nomeVar = ctx.ID().getText();
         int linha = ctx.start.getLine();
-
         if (tabela.existeNoEscopoAtual(nomeVar)) {
             erros = true;
             System.err.println("Erro Semântico (Linha " + linha + "): O vetor '" + nomeVar + "' já foi declarado neste escopo!");
@@ -98,16 +105,22 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         }
 
         // Obter todas as dimensões
-        int dim = ctx.dimensaoVetor().size();
+        int dim = ctx.dimensao().size();
         List<Integer> tamanhos = new ArrayList<>();
         boolean dinamico = false;
 
-        for (TarbaloParser.DimensaoVetorContext dimCtx : ctx.dimensaoVetor()) {
-            if (dimCtx.NUM() == null) {
+        for (TarbaloParser.DimensaoContext dimCtx : ctx.dimensao()) {
+            if (dimCtx.expressao().isEmpty()) {
                 dinamico = true;
                 tamanhos.add(null);   // dimensão dinâmica (tamanho desconhecido)
             } else {
-                tamanhos.add(Integer.parseInt(dimCtx.NUM().getText()));
+                Integer tam = extrairNumero(dimCtx.expressao(0));
+                if (tam != null) {
+                    tamanhos.add(tam);
+                } else {
+                    dinamico = true;
+                    tamanhos.add(null);
+                }
             }
         }
 
@@ -115,9 +128,12 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         tabela.adicionar(simbolo);
 
         // Verifica inicialização do vetor
-        if (ctx.inicializacaoVetor() != null) {
+        TarbaloParser.InicializacaoVetorContext initVetor =
+            ctx.valorAtribuicao() != null ? ctx.valorAtribuicao().inicializacaoVetor() : null;
+
+        if (initVetor != null) {
             AvaliadorDeTipos avaliador = new AvaliadorDeTipos(linha);
-            for (TarbaloParser.ExpressaoContext exprCtx : ctx.inicializacaoVetor().expressao()) {
+            for (TarbaloParser.ExpressaoContext exprCtx : initVetor.expressao()) {
                 String tipoElem = avaliador.visit(exprCtx);
                 if (!saoCompativeis(tipoBase, tipoElem) && !tipoElem.equals("erro")) {
                     erros = true;
@@ -127,9 +143,9 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             }
         }
 
-        if (ctx.inicializacaoVetor() != null && !tamanhos.isEmpty() && tamanhos.get(0) != null) {
+        if (initVetor != null && !tamanhos.isEmpty() && tamanhos.get(0) != null) {
             int tamDeclarado = tamanhos.get(0);
-            int tamInicial = ctx.inicializacaoVetor().expressao().size();
+            int tamInicial = initVetor.expressao().size();
             if (tamInicial > tamDeclarado) {
                 System.err.println("Erro Semântico (Linha " + linha +
                     "): O vetor '" + nomeVar + "' foi declarado com tamanho " + tamDeclarado +
@@ -140,20 +156,57 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     }
 
     /* ---------------------------------------------------------------------
+     * EXPRESSÕES RELACIONAIS — popular mapa de tipos para o Transpilador
+     * --------------------------------------------------------------------- */
+    @Override
+    public void exitExpressaoRelacional(TarbaloParser.ExpressaoRelacionalContext ctx) {
+        AvaliadorDeTipos avaliador = new AvaliadorDeTipos(ctx.start.getLine());
+        String esq = avaliador.visit(ctx.expressaoAditiva(0));
+        mapaTiposExpressao.put(ctx.expressaoAditiva(0), esq);
+
+        if (ctx.operadorRelacional() != null && ctx.expressaoAditiva().size() > 1) {
+            String dir = avaliador.visit(ctx.expressaoAditiva(1));
+            mapaTiposExpressao.put(ctx.expressaoAditiva(1), dir);
+
+            String op = ctx.operadorRelacional().getText();
+            int linha = ctx.start.getLine();
+
+            // Verificar compatibilidade de tipos
+            if (!esq.equals("erro") && !dir.equals("erro") &&
+                !saoCompativeisRelacionais(esq, dir)) {
+                System.err.println("Erro Semântico (Linha " + linha +
+                    "): Tipos incompatíveis na comparação ('" + esq + "' com '" + dir + "').");
+                erros = true;
+            }
+
+            // Operadores de ordenação: inválidos para lgc
+            boolean ehOrdenacao = op.equals("<") || op.equals(">") ||
+                                  op.equals("<=") || op.equals(">=");
+            if (ehOrdenacao && !esq.equals("erro") && !dir.equals("erro")) {
+                if (esq.equals("lgc") || dir.equals("lgc")) {
+                    System.err.println("Erro Semântico (Linha " + linha +
+                        "): Operador '" + op + "' não é válido para tipo lógico (lgc).");
+                    erros = true;
+                }
+            }
+        }
+    }
+
+    /* ---------------------------------------------------------------------
      * ATRIBUIÇÃO
      * --------------------------------------------------------------------- */
     @Override
     public void exitAtribuicao(TarbaloParser.AtribuicaoContext ctx) {
-        verificarAtribuicao(ctx.selecaoVariavel(), ctx.valorAtribuicao(), ctx.start.getLine());
+        verificarAtribuicao(ctx.variavel(), ctx.valorAtribuicao(), ctx.start.getLine());
     }
 
     @Override
     public void exitAtribuicaoPara(TarbaloParser.AtribuicaoParaContext ctx) {
-        verificarAtribuicao(ctx.selecaoVariavel(), ctx.valorAtribuicao(), ctx.start.getLine());
+        verificarAtribuicao(ctx.variavel(), ctx.valorAtribuicao(), ctx.start.getLine());
     }
 
     // método auxiliar reutilizado em exitAtribuicao e exitAtribuicaoPara
-    private void verificarAtribuicao(TarbaloParser.SelecaoVariavelContext sel,
+    private void verificarAtribuicao(TarbaloParser.VariavelContext sel,
                                     TarbaloParser.ValorAtribuicaoContext valor,
                                     int linha) {
         String nomeVar = obterNome(sel);
@@ -176,7 +229,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         // Se o valor à direita é uma inicialização de vetor
         if (valor.inicializacaoVetor() != null) {
             // Só é permitido se o lado esquerdo for um slice
-            if (sel.acessoVetor() != null && contemSlice(sel)) {
+            if (!sel.dimensao().isEmpty() && contemSlice(sel)) {
                 String tipoBase = simbolo.getTipoBase();  // tipo do elemento
                 AvaliadorDeTipos avaliador = new AvaliadorDeTipos(linha);
                 for (TarbaloParser.ExpressaoContext exprCtx : valor.inicializacaoVetor().expressao()) {
@@ -197,9 +250,9 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
         // Determinar tipo esperado do destino
         String tipoVar;
-        if (sel.acessoVetor() != null && !contemSlice(sel)) {
+        if (!sel.dimensao().isEmpty() && !contemSlice(sel)) {
             tipoVar = simbolo.getTipoBase();   // acesso indexado normal
-        } else if (sel.acessoVetor() != null && contemSlice(sel)) {
+        } else if (!sel.dimensao().isEmpty() && contemSlice(sel)) {
             tipoVar = simbolo.getTipo();       // slice → tipo completo do vetor
         } else {
             tipoVar = simbolo.getTipo();
@@ -216,7 +269,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
     @Override
     public void enterDecremento(TarbaloParser.DecrementoContext ctx) {
-        String nomeVar = obterNome(ctx.selecaoVariavel());
+        String nomeVar = obterNome(ctx.variavel());
         int linha = ctx.start.getLine();
         if (nomeVar == null) return;
 
@@ -224,7 +277,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         if (s == null) return;
 
         // Proibir vetor inteiro
-        if (s.getCategoria() == Simbolo.Categoria.VETOR && ctx.selecaoVariavel().acessoVetor() == null) {
+        if (s.getCategoria() == Simbolo.Categoria.VETOR && ctx.variavel().dimensao().isEmpty()) {
             System.err.println("Erro Semântico (Linha " + linha + "): Não é permitido decrementar um vetor inteiro.");
             erros = true;
             return;
@@ -243,12 +296,12 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
      * --------------------------------------------------------------------- */
     @Override
     public void enterLeitura(TarbaloParser.LeituraContext ctx) {
-        String nomeVar = obterNome(ctx.selecaoVariavel());
+        String nomeVar = obterNome(ctx.variavel());
         if (nomeVar != null) {
             Simbolo s = tabela.buscar(nomeVar);
             // proibir leitura de vetor inteiro (ex.: leia(v))
             if (s != null && s.getCategoria() == Simbolo.Categoria.VETOR &&
-                ctx.selecaoVariavel().acessoVetor() == null) {
+                ctx.variavel().dimensao().isEmpty()) {
                 System.err.println("Erro Semântico (Linha " + ctx.start.getLine() +
                     "): Não é permitido ler um vetor inteiro. Use índices.");
                 erros = true;
@@ -298,7 +351,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         if (ctx.parametros() != null) {
             for (TarbaloParser.ParametroContext p : ctx.parametros().parametro()) {
                 String tipo = p.tipoVariavel().getText();
-                if (!p.variavel().dimensaoVetor().isEmpty()) {
+                if (!p.variavel().dimensao().isEmpty()) {
                     tipo += "[]";
                 }
                 tiposParametros.add(tipo);
@@ -316,6 +369,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
     @Override
     public void exitDeclaracaoFuncao(TarbaloParser.DeclaracaoFuncaoContext ctx) {
+        String nome = ctx.ID().getText();
         tabela.fecharEscopo(); // fecha o escopo da função (inclui parâmetros e corpo)
         dentroDeFuncao = false;
         pilhaRetornos.pop();
@@ -333,17 +387,23 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             return;
         }
 
-        List<TarbaloParser.DimensaoVetorContext> dimensoes = ctx.variavel().dimensaoVetor();
+        List<TarbaloParser.DimensaoContext> dimensoes = ctx.variavel().dimensao();
         if (!dimensoes.isEmpty()) {
             int dim = dimensoes.size();
             List<Integer> tamanhos = new ArrayList<>();
             boolean dinamico = false;
-            for (TarbaloParser.DimensaoVetorContext dimCtx : dimensoes) {
-                if (dimCtx.NUM() == null) {
+            for (TarbaloParser.DimensaoContext dimCtx : dimensoes) {
+                if (dimCtx.expressao().isEmpty()) {
                     dinamico = true;
                     tamanhos.add(null);
                 } else {
-                    tamanhos.add(Integer.parseInt(dimCtx.NUM().getText()));
+                    Integer tam = extrairNumero(dimCtx.expressao(0));
+                    if (tam != null) {
+                        tamanhos.add(tam);
+                    } else {
+                        dinamico = true;
+                        tamanhos.add(null);
+                    }
                 }
             }
             // Cria símbolo de vetor com as informações completas
@@ -385,53 +445,42 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     /* ---------------------------------------------------------------------
      * LAÇOS (pare, continuar)
      * --------------------------------------------------------------------- */
-    // ---------- SE (não é laço, apenas bloco de controle) ----------
-    @Override public void enterCmdSe(TarbaloParser.CmdSeContext ctx) { nivelBlocoControle++; }
-    @Override public void exitCmdSe(TarbaloParser.CmdSeContext ctx) { nivelBlocoControle--; }
-
-    // ---------- ENQUANTO (laço + controle) ----------
+    // ---------- ENQUANTO (laço) ----------
     @Override
     public void enterCmdEnquanto(TarbaloParser.CmdEnquantoContext ctx) {
         nivelLaco++;
-        nivelBlocoControle++;
     }
     @Override
     public void exitCmdEnquanto(TarbaloParser.CmdEnquantoContext ctx) {
         nivelLaco--;
-        nivelBlocoControle--;
     }
 
     // ---------- FACA-ENQUANTO (laço + controle) ----------
     @Override
     public void enterCmdFacaEnquanto(TarbaloParser.CmdFacaEnquantoContext ctx) {
         nivelLaco++;
-        nivelBlocoControle++;
     }
     @Override
     public void exitCmdFacaEnquanto(TarbaloParser.CmdFacaEnquantoContext ctx) {
         nivelLaco--;
-        nivelBlocoControle--;
     }
 
     // ---------- PARA (laço + controle + escopo próprio) ----------
     @Override
     public void enterCmdPara(TarbaloParser.CmdParaContext ctx) {
         nivelLaco++;
-        nivelBlocoControle++;
         tabela.abrirEscopo();
     }
     @Override
     public void exitCmdPara(TarbaloParser.CmdParaContext ctx) {
         tabela.fecharEscopo();
         nivelLaco--;
-        nivelBlocoControle--;
     }
 
     // ---------- PARACADA (laço + controle + escopo próprio) ----------
     @Override
     public void enterCmdParaCada(TarbaloParser.CmdParaCadaContext ctx) {
         nivelLaco++;
-        nivelBlocoControle++;
         tabela.abrirEscopo();
         // O resto do método permanece igual: declaração da variável de iteração, etc.
         String nome = ctx.ID().getText();
@@ -456,7 +505,6 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     public void exitCmdParaCada(TarbaloParser.CmdParaCadaContext ctx) {
         tabela.fecharEscopo();
         nivelLaco--;
-        nivelBlocoControle--;
     }
 
     @Override
@@ -506,12 +554,11 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     public void enterChamadaFuncao(TarbaloParser.ChamadaFuncaoContext ctx) {
         String nome = ctx.ID().getText();
         int linha = ctx.start.getLine();
-        Simbolo s = tabela.buscar(nome);
 
-        // Avaliar tipos dos argumentos
+        // Avaliar tipos dos argumentos UMA única vez
+        AvaliadorDeTipos av = new AvaliadorDeTipos(linha);
         List<String> tiposArgs = new ArrayList<>();
         if (ctx.argumentos() != null) {
-            AvaliadorDeTipos av = new AvaliadorDeTipos(linha);
             for (var expr : ctx.argumentos().expressao()) {
                 String tipo = av.visit(expr);
                 if (tipo.equals("erro")) {
@@ -522,6 +569,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             }
         }
 
+        // Resolver sobrecarga usando os tipos já avaliados
         Simbolo func = tabela.resolverSobrecarga(nome, tiposArgs);
         if (func == null) {
             List<Simbolo> candidatos = tabela.buscarFuncoes(nome);
@@ -536,45 +584,27 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
         mapaResolucao.put(ctx, func);
 
-        // Função não declarada
-        if (s == null) {
-            System.err.println("Erro Semântico (Linha " + linha + "): Função '" + nome + "' não declarada.");
-            erros = true;
-            return;
-        }
-
-        // Não é uma função
-        if (s.getCategoria() != Simbolo.Categoria.FUNCAO) {
-            System.err.println("Erro Semântico (Linha " + linha + "): '" + nome + "' não é uma função.");
-            erros = true;
-            return;
-        }
-
         // Número de argumentos
-        int numArgs = ctx.argumentos() != null ? ctx.argumentos().expressao().size() : 0;
-        List<String> tiposParam = s.getTiposParametros();  // lista de tipos (ex.: ["int", "txt", "int[]"])
+        int numArgs = tiposArgs.size();
+        List<String> tiposParam = func.getTiposParametros();
         int numParams = tiposParam.size();
 
         if (numArgs != numParams) {
             System.err.println("Erro Semântico (Linha " + linha + "): Função '" + nome +
                             "' espera " + numParams + " parâmetro(s), mas foi chamada com " + numArgs + ".");
             erros = true;
-            return; // não vale a pena verificar tipos se as quantidades diferem
+            return;
         }
 
-        // Verificar tipo de cada argumento
-        if (ctx.argumentos() != null) {
-            AvaliadorDeTipos avaliador = new AvaliadorDeTipos(linha);
-            List<TarbaloParser.ExpressaoContext> argumentos = ctx.argumentos().expressao();
-            for (int i = 0; i < argumentos.size(); i++) {
-                String tipoArg = avaliador.visit(argumentos.get(i));
-                String tipoParam = tiposParam.get(i);
+        // Verificar tipo de cada argumento (reusa tiposArgs já avaliados)
+        for (int i = 0; i < numArgs; i++) {
+            String tipoArg = tiposArgs.get(i);
+            String tipoPar = tiposParam.get(i);
 
-                if (!tipoArg.equals("erro") && !saoCompativeis(tipoParam, tipoArg)) {
-                    System.err.println("Erro Semântico (Linha " + linha + "): Tipo incompatível no argumento " + (i+1) +
-                                    " da função '" + nome + "'. Esperado '" + tipoParam + "', mas recebeu '" + tipoArg + "'.");
-                    erros = true;
-                }
+            if (!tipoArg.equals("erro") && !saoCompativeis(tipoPar, tipoArg)) {
+                System.err.println("Erro Semântico (Linha " + linha + "): Tipo incompatível no argumento " + (i+1) +
+                                " da função '" + nome + "'. Esperado '" + tipoPar + "', mas recebeu '" + tipoArg + "'.");
+                erros = true;
             }
         }
     }
@@ -586,30 +616,57 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         if (tipoVar.equals("desconhecido") || tipoExpr.equals("desconhecido")) return true;
         if (tipoExpr.equals("erro")) return false;
         if (tipoVar.equals(tipoExpr)) return true;
-        if (tipoVar.equals("qbd") && tipoExpr.equals("int")) return true; // int cabe em dec
+        if (tipoVar.equals("qbd") && tipoExpr.equals("int")) return true; // int cabe em qbd
+        // int[] cabe em qbd[], int[][] cabe em qbd[][], etc.
+        if (tipoVar.startsWith("qbd") && tipoExpr.startsWith("int")) {
+            String sufixoVar = tipoVar.substring(3);
+            String sufixoExpr = tipoExpr.substring(3);
+            if (sufixoVar.equals(sufixoExpr) && sufixoVar.startsWith("[")) return true;
+        }
         return false;
     }
 
-    private String obterNome(TarbaloParser.SelecaoVariavelContext ctx) {
+    private String obterNome(TarbaloParser.VariavelContext ctx) {
         if (ctx == null) return null;
-        if (ctx.ID() != null) return ctx.ID().getText();
-        if (ctx.acessoVetor() != null) return ctx.acessoVetor().ID().getText();
-        return null;
+        return ctx.ID().getText();
     }
 
     private String obterNome(TarbaloParser.OperandoContext ctx) {
-        if (ctx.ID() != null) return ctx.ID().getText();
-        if (ctx.acessoVetor() != null) return ctx.acessoVetor().ID().getText();
+        if (ctx.variavel() != null) return ctx.variavel().ID().getText();
         return null;
     }
 
-    private boolean contemSlice(TarbaloParser.SelecaoVariavelContext ctx) {
-        if (ctx.acessoVetor() != null) {
-            for (TarbaloParser.AcessoDimensaoContext dim : ctx.acessoVetor().acessoDimensao()) {
-                if (dim.PONTOPONTO() != null) return true;
-            }
+    private boolean contemSlice(TarbaloParser.VariavelContext ctx) {
+        for (TarbaloParser.DimensaoContext dim : ctx.dimensao()) {
+            if (dim.PONTOPONTO() != null) return true;
         }
         return false;
+    }
+
+    // Extrai um número inteiro literal de uma expressao (para tamanhos de dimensão).
+    // Caminho: expressao → expressaoXor → expressaoE → expressaoNegacao →
+    //          expressaoRelacional → expressaoAditiva → expressaoConcatenacao →
+    //          expressaoMultiplicativa → operando → NUM
+    private Integer extrairNumero(TarbaloParser.ExpressaoContext expr) {
+        if (expr.expressaoXor().size() != 1) return null;
+        var xor = expr.expressaoXor(0);
+        if (xor.expressaoE().size() != 1) return null;
+        var e = xor.expressaoE(0);
+        if (e.expressaoNegacao().size() != 1) return null;
+        var neg = e.expressaoNegacao(0);
+        if (neg.NAO() != null) return null;
+        var rel = neg.expressaoRelacional();
+        if (rel.operadorRelacional() != null) return null;
+        if (rel.expressaoAditiva().size() != 1) return null;
+        var ad = rel.expressaoAditiva(0);
+        if (ad.expressaoConcatenacao().size() != 1) return null;
+        var conc = ad.expressaoConcatenacao(0);
+        if (conc.expressaoMultiplicativa().size() != 1) return null;
+        var mul = conc.expressaoMultiplicativa(0);
+        if (mul.operando().size() != 1) return null;
+        var op = mul.operando(0);
+        if (op.NUM() != null) return Integer.parseInt(op.NUM().getText());
+        return null;
     }
 
     private boolean saoCompativeisRelacionais(String tipoEsq, String tipoDir) {
@@ -648,13 +705,6 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         }
 
         @Override
-        public String visitCriacaoVetor(TarbaloParser.CriacaoVetorContext ctx) {
-            String tipo = ctx.tipoVariavel().getText();
-            int dims = ctx.dimensaoDinamica().size();
-            return tipo + "[]".repeat(dims);
-        }
-
-        @Override
         public String visitOperando(TarbaloParser.OperandoContext ctx) {
             if (ctx.NUM() != null) return "int";
             if (ctx.NUMDEC() != null) return "qbd";
@@ -662,27 +712,27 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             if (ctx.CHAR() != null) return "ltr";
             if (ctx.VERDADEIRO() != null || ctx.FALSO() != null) return "lgc";
 
-            if (ctx.ID() != null) {
-                String tipo = tabela.obterTipo(ctx.ID().getText());
-                return tipo != null ? tipo : "desconhecido";
-            }
-
-            if (ctx.acessoVetor() != null) {
-                String nomeVetor = ctx.acessoVetor().ID().getText();
-                Simbolo s = tabela.buscar(nomeVetor);
+            if (ctx.variavel() != null) {
+                String nomeVar = ctx.variavel().ID().getText();
+                Simbolo s = tabela.buscar(nomeVar);
                 if (s == null) {
-                    System.err.println("Erro Semântico (Linha " + linha + "): Vetor '" + nomeVetor + "' não declarado.");
+                    System.err.println("Erro Semântico (Linha " + linha + "): Variável '" + nomeVar + "' não declarada.");
                     erros = true;
                     return "erro";
                 }
+                // Se não tem dimensão, é variável simples
+                if (ctx.variavel().dimensao().isEmpty()) {
+                    return s.getTipo();
+                }
+                // Se tem dimensão, é acesso a vetor
                 if (s.getCategoria() != Simbolo.Categoria.VETOR) {
-                    System.err.println("Erro Semântico (Linha " + linha + "): '" + nomeVetor + "' não é um vetor e não pode ser indexado.");
+                    System.err.println("Erro Semântico (Linha " + linha + "): '" + nomeVar + "' não é um vetor e não pode ser indexado.");
                     erros = true;
                     return "erro";
                 }
                 // Verifica se há slice
                 boolean isSlice = false;
-                for (TarbaloParser.AcessoDimensaoContext dim : ctx.acessoVetor().acessoDimensao()) {
+                for (TarbaloParser.DimensaoContext dim : ctx.variavel().dimensao()) {
                     if (dim.PONTOPONTO() != null) {
                         isSlice = true;
                         break;
@@ -695,9 +745,19 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
             if (ctx.chamadaFuncao() != null) {
                 String nomeFunc = ctx.chamadaFuncao().ID().getText();
-                Simbolo s = tabela.buscar(nomeFunc);
-                if (s != null && s.getCategoria() == Simbolo.Categoria.FUNCAO) {
-                    String ret = s.getTipoRetorno();
+
+                // Avaliar tipos dos argumentos para resolver sobrecarga
+                List<String> tiposArgsFunc = new ArrayList<>();
+                if (ctx.chamadaFuncao().argumentos() != null) {
+                    for (var expr : ctx.chamadaFuncao().argumentos().expressao()) {
+                        tiposArgsFunc.add(visit(expr));
+                    }
+                }
+                Simbolo func = tabela.resolverSobrecarga(nomeFunc, tiposArgsFunc);
+                if (func == null) func = tabela.buscar(nomeFunc); // fallback
+
+                if (func != null && func.getCategoria() == Simbolo.Categoria.FUNCAO) {
+                    String ret = func.getTipoRetorno();
                     if (ret.equals("vazio")) {
                         System.err.println("Erro Semântico (Linha " + linha + "): Função '" + nomeFunc + "' é do tipo vazio e não pode ser usada em expressão.");
                         erros = true;
@@ -713,15 +773,11 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
         @Override
         public String visitExpressaoRelacional(TarbaloParser.ExpressaoRelacionalContext ctx) {
-            if (ctx.operadorRelacional() != null) {
-                String esq = visit(ctx.expressaoAditiva(0));
-                String dir = visit(ctx.expressaoAditiva(1));
-                if (!esq.equals("erro") && !dir.equals("erro") &&
-                    !saoCompativeisRelacionais(esq, dir)) {
-                    System.err.println("Erro Semântico (Linha " + linha +
-                        "): Tipos incompatíveis na comparação ('" + esq + "' com '" + dir + "').");
-                    erros = true;
-                }
+            // As verificações semânticas estão no listener exitExpressaoRelacional
+            // Aqui apenas inferimos o tipo
+            visit(ctx.expressaoAditiva(0));
+            if (ctx.operadorRelacional() != null && ctx.expressaoAditiva().size() > 1) {
+                visit(ctx.expressaoAditiva(1));
                 return "lgc";
             }
             return visit(ctx.expressaoAditiva(0));
@@ -808,33 +864,15 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         }
 
         @Override
-        public String visitExpressaoUnaria(TarbaloParser.ExpressaoUnariaContext ctx) {
-            if (ctx.MENOS() != null || ctx.MAIS() != null) {
-                String tipo = visit(ctx.expressaoUnaria());
-                if (!tipo.equals("int") && !tipo.equals("qbd") && !tipo.equals("erro") && !tipo.equals("desconhecido")) {
-                    erros = true;
-                    System.err.println("Erro Semântico (Linha " + linha + "): Operador unário exige operando numérico, mas recebeu '" + tipo + "'.");
-                    return "erro";
+        public String visitExpressaoConcatenacao(TarbaloParser.ExpressaoConcatenacaoContext ctx) {
+            if (!ctx.CONCAT().isEmpty()) {
+                // Visita subexpressões para detectar erros internos
+                for (TarbaloParser.ExpressaoMultiplicativaContext sub : ctx.expressaoMultiplicativa()) {
+                    visit(sub);
                 }
-                return tipo;   // mantém o tipo do operando
+                return "txt";
             }
-            return visit(ctx.operando());
-        }
-
-        @Override
-        public String visitExpressaoAditiva(TarbaloParser.ExpressaoAditivaContext ctx) {
-            // Se houver concatenação, o resultado é sempre "txt"
-            for (int i = 1; i < ctx.getChildCount(); i += 2) {
-                if (ctx.getChild(i).getText().equals("&")) {
-                    // Ainda visita as subexpressões para detetar erros internos
-                    for (TarbaloParser.ExpressaoMultiplicativaContext sub : ctx.expressaoMultiplicativa()) {
-                        visit(sub);
-                    }
-                    return "txt";
-                }
-            }
-            // Se não há concatenação, segue a agregação normal
-            return super.visitExpressaoAditiva(ctx);
+            return visit(ctx.expressaoMultiplicativa(0));
         }
 
         @Override

@@ -31,6 +31,10 @@ public class TabelaSimbolos {
         return pilhaEscopos.peek();
     }
 
+    public String escopoAtualNome() {
+        return "escopo[" + pilhaEscopos.size() + "]=" + escopoAtual().keySet();
+    }
+
     // Método adicionar modificado para suportar sobrecarga de funções
     public boolean adicionar(Simbolo simbolo) {
         Map<String, Simbolo> atual = escopoAtual();
@@ -86,8 +90,8 @@ public class TabelaSimbolos {
 
     private boolean tipoCompatible(String tipoParam, String tipoArg) {
         if (tipoParam.equals(tipoArg)) return true;
-        // int pode ser passado para dec
-        if (tipoParam.equals("dec") && tipoArg.equals("int")) return true;
+        // int pode ser passado para qbd (decimal)
+        if (tipoParam.equals("qbd") && tipoArg.equals("int")) return true;
         return false;
     }
 

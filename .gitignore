@@ -1,0 +1,16 @@
+# OpenClaude memory
+.openclaude/
+
+# Maven target
+target/
+
+# Compiled Java
+*.class
+
+# Generated output
+ProgramaSaida.java
+ProgramaSaida.class
+
+# IDE
+.idea/
+*.iml

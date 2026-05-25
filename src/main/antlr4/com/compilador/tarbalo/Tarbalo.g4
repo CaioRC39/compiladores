@@ -1,7 +1,6 @@
 /* ======================================================================
    Gramática Tarbalo
    Linguagem imperativa com palavras‑chave em português.
-   Bloco delimitado por prog ... fimprog.
    ====================================================================== */
 
 
@@ -14,7 +13,7 @@ grammar Tarbalo;
 programa:
     INICIO
         (diretiva)*
-        bloco+
+        (bloco)+
     FIM
     PONTO
     EOF
@@ -40,7 +39,7 @@ declaracaoVariavel:
 ;
 
 variavel:
-    ID dimensaoVetor*          // ex.: a, vet[10], mat[2][3]
+    ID dimensao*               // ex.: a, vet[10], mat[2][3]
 ;
 
 tipoVariavel:
@@ -52,7 +51,7 @@ tipoVariavel:
 ;
 
 tipoComposto:
-    tipoVariavel dimensaoVetor*
+    tipoVariavel dimensao*
 ;
 
 tipoRetorno:
@@ -60,14 +59,15 @@ tipoRetorno:
     | VAZIO
 ;
 
-dimensaoVetor:
+// Regra unificada para dimensões de vetores/arrays
+dimensao:
     ABRECOLCHETE
-        expressao?
+        (expressao (PONTOPONTO expressao)?)?
     FECHACOLCHETE
 ;
 
 declaracaoVetor:
-    VETOR tipoVariavel ID dimensaoVetor+ (ATRIBUICAO valorAtribuicao)?
+    VETOR tipoVariavel ID dimensao+ (ATRIBUICAO valorAtribuicao)?
     PONTO
 ;
 
@@ -150,7 +150,7 @@ diretiva:
 leitura:
     LEIA
     ABREPARENTE
-        selecaoVariavel
+        variavel
     FECHAPARENTE
     PONTO
 ;
@@ -167,22 +167,17 @@ escrita:
 // 2. Atribuição e incrementos
 // -----------------------------------------------------------------------
 
-selecaoVariavel:
-    ID
-    | acessoVetor
-;
-
 atribuicao:
-    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
+    variavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
     PONTO
 ;
 
 incremento:
-    selecaoVariavel INCREMENTO
+    variavel INCREMENTO
 ;
 
 decremento:
-    selecaoVariavel DECREMENTO
+    variavel DECREMENTO
 ;
 
 incrementoPonto:
@@ -256,7 +251,7 @@ inicializacaoPara:
 ;
 
 atribuicaoPara:
-    selecaoVariavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
+    variavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
 ;
 
 atualizacaoPara:
@@ -325,21 +320,19 @@ expressaoRelacional:
     expressaoAditiva (operadorRelacional expressaoAditiva)?
 ;
 
-// ---------- 6. Adição / subtração / concatenação ----------
+// ---------- 6. Adição / subtração ----------
 expressaoAditiva:
-    expressaoMultiplicativa ((MAIS | MENOS | CONCAT) expressaoMultiplicativa)*
+    expressaoConcatenacao ((MAIS | MENOS) expressaoConcatenacao)*
 ;
 
-// ---------- 7. Multiplicação / divisão ----------
+// ---------- 7. Concatenação ----------
+expressaoConcatenacao:
+    expressaoMultiplicativa (CONCAT expressaoMultiplicativa)*
+;
+
+// ---------- 8. Multiplicação / divisão ----------
 expressaoMultiplicativa:
-    expressaoUnaria ((MULT | DIV | DIVINT | MOD) expressaoUnaria)*
-;
-
-// ---------- 8. Expressões unárias ----------
-expressaoUnaria:
-    MENOS expressaoUnaria
-    | MAIS expressaoUnaria
-    | operando
+    operando ((MULT | DIV | DIVINT | MOD) operando)*
 ;
 
 // ---------- 9. Operandos ----------
@@ -350,21 +343,9 @@ operando:
     | CHAR
     | VERDADEIRO
     | FALSO
-    | ID
-    | acessoVetor
+    | variavel
     | chamadaFuncao
     | ABREPARENTE expressao FECHAPARENTE
-;
-
-// ---------- 10. Acesso a vetor ----------
-acessoVetor:
-    ID acessoDimensao+
-;
-
-acessoDimensao:
-    ABRECOLCHETE
-        expressao (PONTOPONTO expressao)?
-    FECHACOLCHETE
 ;
 
 // ---------- 11. Chamada de função ----------

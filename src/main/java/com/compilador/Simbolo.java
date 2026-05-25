@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Simbolo {
     private String nome;
-    private String tipo;          // "int", "dec", "texto", "car", "logico", "vazio", "func"
+    private String tipo;          // "int", "qbd", "txt", "ltr", "lgc", "vazio", "func"
     private String tipoBase;
     private boolean nativa;
     private Categoria categoria;  // enum
@@ -60,4 +60,24 @@ public class Simbolo {
     public List<Integer> getTamanhos() { return tamanhos; }
     public List<String> getTiposParametros() { return tiposParametros; }
     public String getTipoRetorno() { return tipoRetorno; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Simbolo outro = (Simbolo) o;
+        if (categoria != outro.categoria) return false;
+        if (!nome.equals(outro.nome)) return false;
+        // Para funções, comparar nome + tipos de parâmetros (sobrecarga)
+        if (categoria == Categoria.FUNCAO) {
+            return tiposParametros != null ? tiposParametros.equals(outro.tiposParametros) : outro.tiposParametros == null;
+        }
+        // Para variáveis/vetores, comparar nome (já garantiu que é o mesmo símbolo no escopo)
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return nome.hashCode();
+    }
 }

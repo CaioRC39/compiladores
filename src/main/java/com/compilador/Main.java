@@ -12,42 +12,34 @@ public class Main {
         // 1. Parse do programa principal
         TarbaloParser.ProgramaContext userTree = parseFile("tst.tarbalo");
 
-        // 2. Extrair e processar diretivas de inclusão
+        // 2. Extrair e processar diretivas de inclusão (parse UMA vez por arquivo)
         List<TarbaloParser.DiretivaContext> diretivas = userTree.diretiva();
         List<TarbaloParser.BlocoContext> todosBlocos = new ArrayList<>();
+        List<TarbaloParser.ProgramaContext> libTrees = new ArrayList<>();
 
         for (TarbaloParser.DiretivaContext dir : diretivas) {
             String caminho = dir.STRING().getText();
-            // Remove as aspas duplas
             caminho = caminho.substring(1, caminho.length() - 1);
-            // Carrega e faz parsing do arquivo incluído
             TarbaloParser.ProgramaContext libTree = parseFile(caminho);
-            // Adiciona os blocos da biblioteca (ignorando diretivas recursivas se houver,
-            // mas podemos proibir ou permitir – proibiremos para simplicidade)
             if (!libTree.diretiva().isEmpty()) {
                 throw new RuntimeException("Diretivas 'usar' não são permitidas em arquivos incluídos.");
             }
+            libTrees.add(libTree);
             todosBlocos.addAll(libTree.bloco());
         }
-        // Adiciona os blocos do programa principal
         todosBlocos.addAll(userTree.bloco());
 
         // 3. Tabela de símbolos e built‑ins
         TabelaSimbolos tabela = new TabelaSimbolos();
         adicionarBuiltins(tabela);
 
-        // 4. Análise semântica
+        // 4. Análise semântica — reusa as mesmas árvores já parseadas
         AnalisadorSemantico analisador = new AnalisadorSemantico(tabela);
-
-        // 5. Caminhar sobre a árvore combinada (simulando um programa único)
         ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(analisador, userTree);
-        // Vamos analisar cada árvore incluída:
-        for (TarbaloParser.DiretivaContext dir : userTree.diretiva()) {
-            String caminho = dir.STRING().getText().replaceAll("\"", "");
-            TarbaloParser.ProgramaContext libTree = parseFile(caminho);
+        for (TarbaloParser.ProgramaContext libTree : libTrees) {
             walker.walk(analisador, libTree);
         }
+        walker.walk(analisador, userTree);
 
         if (analisador.houveErros()) {
             System.err.println("Erros semânticos encontrados. Transpilação abortada.");
@@ -55,9 +47,9 @@ public class Main {
         }
 
         // 6. Transpilação
-        TarbaloTranspilador transpilador = new TarbaloTranspilador(tabela);
+        TarbaloTranspilador transpilador = new TarbaloTranspilador(tabela, analisador);
         // Agora o transpilador precisa visitar a lista combinada de blocos.
-        // Modificamos o visitPrograma para aceitar uma lista de BlocoContext.
+        // Transpila todos os blocos (bibliotecas + programa principal).
         String codigoJava = transpilador.transpilar(todosBlocos);
 
         if (codigoJava != null) {
