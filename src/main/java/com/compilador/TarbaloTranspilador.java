@@ -8,7 +8,6 @@ import com.compilador.tarbalo.TarbaloParser;
 public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
     private TabelaSimbolos tabela;
-    private boolean erros = false;
     private StringBuilder funcoesGeradas = new StringBuilder();
     private AnalisadorSemantico analisador; // setado no construtor
 
@@ -41,12 +40,6 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         return sb.toString();
     }
 
-    public boolean houveErros() { return erros; }
-
-    private void erro(int linha, String msg) {
-        System.err.println("Erro semântico (linha " + linha + "): " + msg);
-        erros = true;
-    }
 
     private String mapearTipo(String tipoTarbalo) {
         // Extrair o tipo base e os colchetes
@@ -84,13 +77,13 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
     // Retorna o método do scanner de acordo com o tipo Tarbalo
     private String getScannerMethod(String tipoTarbalo) {
-        if (tipoTarbalo == null) return "scanner.next()";
+        if (tipoTarbalo == null) return "scanner.nextLine()";
         return switch (tipoTarbalo) {
             case "int"    -> "scanner.nextInt()";
             case "qbd"    -> "scanner.nextDouble()";
             case "lgc"    -> "scanner.nextBoolean()";
             case "ltr"    -> "scanner.next().charAt(0)";
-            default       -> "scanner.next()";
+            default       -> "scanner.nextLine()";
         };
     }
 
@@ -163,8 +156,15 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         StringBuilder args = new StringBuilder(nome);
         for (TarbaloParser.DimensaoContext d : ctx.dimensao()) {
             if (d.PONTOPONTO() != null) {
-                args.append(", ").append(visit(d.expressao(0)))
-                    .append(", (").append(visit(d.expressao(1))).append(") + 1");
+                String inicio = visit(d.expressao(0));
+                String fim;
+                if (d.expressao(1) != null) {
+                    fim = "(" + visit(d.expressao(1)) + ") + 1";
+                } else {
+                    // Slice aberto [expr..] → usa tamanho do vetor
+                    fim = nome + ".length";
+                }
+                args.append(", ").append(inicio).append(", ").append(fim);
             } else {
                 String idx = visit(d.expressao(0));
                 args.append(", ").append(idx).append(", (").append(idx).append(") + 1");
@@ -199,7 +199,7 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
             TarbaloParser.DimensaoContext dim = sel.dimensao(0);
             if (dim.PONTOPONTO() != null) {
                 String inicio = visit(dim.expressao(0));
-                String fim = visit(dim.expressao(1));
+                String fim = dim.expressao(1) != null ? visit(dim.expressao(1)) : nomeVetor + ".length - 1";
 
                 // Verificar se é inicialização literal
                 if (ctx.valorAtribuicao().inicializacaoVetor() != null) {
@@ -207,10 +207,10 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
                     Simbolo sim = tabela.buscar(nomeVetor);
                     String tipoBase = sim != null ? sim.getTipoBase() : "int";
                     String tipoJava = mapearTipo(tipoBase);
-                    String tempVar = "__temp_" + nomeVetor;
-                    return tipoJava + "[] " + tempVar + " = " + valores + ";\n" +
-                        "for (int __i = " + inicio + "; __i <= " + fim + "; __i++) {\n" +
-                        "    " + nomeVetor + "[__i] = " + tempVar + "[__i - (" + inicio + ")];\n" +
+                    String tempVar = "__tarbalo_tmp_" + nomeVetor;
+                    return tipoJava + "[] " + tempVar + " = new " + tipoJava + "[]" + valores + ";\n" +
+                        "for (int __tarbalo_i = " + inicio + "; __tarbalo_i <= " + fim + "; __tarbalo_i++) {\n" +
+                        "    " + nomeVetor + "[__tarbalo_i] = " + tempVar + "[__tarbalo_i - (" + inicio + ")];\n" +
                         "}";
                 } else {
                     // Expressão comum (variável, chamada, etc.)
@@ -218,10 +218,10 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
                     Simbolo sim = tabela.buscar(nomeVetor);
                     String tipoBase = sim != null ? sim.getTipoBase() : "int";
                     String tipoJava = mapearTipo(tipoBase);
-                    String tempVar = "__temp_" + nomeVetor;
+                    String tempVar = "__tarbalo_tmp_" + nomeVetor;
                     return tipoJava + "[] " + tempVar + " = " + exprJava + ";\n" +
-                        "for (int __i = " + inicio + "; __i <= " + fim + "; __i++) {\n" +
-                        "    " + nomeVetor + "[__i] = " + tempVar + "[__i - (" + inicio + ")];\n" +
+                        "for (int __tarbalo_i = " + inicio + "; __tarbalo_i <= " + fim + "; __tarbalo_i++) {\n" +
+                        "    " + nomeVetor + "[__tarbalo_i] = " + tempVar + "[__tarbalo_i - (" + inicio + ")];\n" +
                         "}";
                 }
             }
@@ -267,17 +267,17 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
             TarbaloParser.DimensaoContext dim = sel.dimensao(0);
             if (dim.PONTOPONTO() != null) {
                 String inicio = visit(dim.expressao(0));
-                String fim = visit(dim.expressao(1));
+                String fim = dim.expressao(1) != null ? visit(dim.expressao(1)) : nomeVetor + ".length - 1";
                 // Determinar o tipo base para usar o scanner correto
                 String tipoBase = tabela.obterTipo(nomeVetor);
                 if (tipoBase != null && tipoBase.endsWith("[]")) {
                     tipoBase = tipoBase.replace("[]", "");
                 }
                 String scannerMethod = getScannerMethod(tipoBase);
-                // Gera: for (int __i = inicio; __i < fim; __i++) { v[__i] = scanner.nextInt(); }
+                // Gera: for (int __tarbalo_i = inicio; __tarbalo_i < fim; __tarbalo_i++) { v[__tarbalo_i] = scanner.nextInt(); }
                 StringBuilder sb = new StringBuilder();
-                sb.append("for (int __i = ").append(inicio).append("; __i <= ").append(fim).append("; __i++) {\n");
-                sb.append("    ").append(nomeVetor).append("[__i] = ").append(scannerMethod).append(";\n");
+                sb.append("for (int __tarbalo_i = ").append(inicio).append("; __tarbalo_i <= ").append(fim).append("; __tarbalo_i++) {\n");
+                sb.append("    ").append(nomeVetor).append("[__tarbalo_i] = ").append(scannerMethod).append(";\n");
                 sb.append("}");
                 return sb.toString();
             }
@@ -303,17 +303,10 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     // ======================================================================
     @Override
     public String visitEscrita(TarbaloParser.EscritaContext ctx) {
-        if (ctx.expressao() == null || ctx.expressao().isEmpty()) {
+        if (ctx.expressao() == null) {
             return "System.out.println();";
         }
-        StringBuilder args = new StringBuilder();
-        for (int i = 0; i < ctx.expressao().size(); i++) {
-            if (i > 0) args.append(" + \" \" + ");
-            // Forçar conversão para String com String.valueOf() evita
-            // ambiguidade de '+' com char/int
-            args.append("String.valueOf(").append(visit(ctx.expressao(i))).append(")");
-        }
-        return "System.out.println(" + args + ");";
+        return "System.out.println(" + visit(ctx.expressao()) + ");";
     }
 
     // ======================================================================
@@ -398,11 +391,12 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
             String op  = ctx.operadorRelacional().getText();
             String dir = visit(ctx.expressaoAditiva(1));
 
-            // Descobrir tipo do operando esquerdo para traduzir corretamente
+            // Descobrir tipo dos operandos para traduzir corretamente
             String tipoEsq = analisador.consultarTipo(ctx.expressaoAditiva(0));
+            String tipoDir = analisador.consultarTipo(ctx.expressaoAditiva(1));
 
-            // Se o tipo é String (txt), traduzir para compareTo/equals
-            if (tipoEsq.equals("txt")) {
+            // Se algum dos tipos é String (txt), traduzir para compareTo/equals
+            if (tipoEsq.equals("txt") || tipoDir.equals("txt")) {
                 if (op.equals("=")) {
                     return esq + ".equals(" + dir + ")";
                 } else if (op.equals("!=")) {
@@ -463,13 +457,19 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
     @Override
     public String visitExpressaoConcatenacao(TarbaloParser.ExpressaoConcatenacaoContext ctx) {
         if (!ctx.CONCAT().isEmpty()) {
-            StringBuilder sb = new StringBuilder("String.valueOf(" + visit(ctx.expressaoMultiplicativa(0)) + ")");
+            StringBuilder sb = new StringBuilder(valorComoString(visit(ctx.expressaoMultiplicativa(0))));
             for (int i = 1; i < ctx.expressaoMultiplicativa().size(); i++) {
-                sb.append(" + String.valueOf(").append(visit(ctx.expressaoMultiplicativa(i))).append(")");
+                sb.append(" + ").append(valorComoString(visit(ctx.expressaoMultiplicativa(i))));
             }
             return sb.toString();
         }
         return visit(ctx.expressaoMultiplicativa(0));
+    }
+
+    /** Retorna o código Java como String — evita String.valueOf() redundante para literais/variáveis txt. */
+    private String valorComoString(String exprJava) {
+        if (exprJava.startsWith("\"")) return exprJava;
+        return "String.valueOf(" + exprJava + ")";
     }
 
     /**
@@ -483,9 +483,14 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         int exprIdx = 1;
         for (int i = 1; i < ctx.getChildCount(); i += 2) {
             String op = ctx.getChild(i).getText();
-            if (op.equals("//")) op = "/";  // DIVINT → divisão inteira Java
-            sb.append(" ").append(op).append(" ")
-                    .append(visit(ctx.operando(exprIdx++)));
+            if (op.equals("//")) {
+                // DIVINT → cast para int garante divisão inteira mesmo com operandos mistos
+                sb.insert(0, "(int)(");
+                sb.append(" / ").append(visit(ctx.operando(exprIdx++))).append(")");
+            } else {
+                sb.append(" ").append(op).append(" ")
+                        .append(visit(ctx.operando(exprIdx++)));
+            }
         }
         return sb.toString();
     }
@@ -511,6 +516,8 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
         if (ctx.variavel()    != null) return visit(ctx.variavel());
         if (ctx.chamadaFuncao()!= null) return visit(ctx.chamadaFuncao());
         if (ctx.expressao()   != null) return "(" + visit(ctx.expressao()) + ")";
+        // Unário negativo: -operando
+        if (ctx.MENOS()       != null) return "(-" + visit(ctx.operando()) + ")";
         return "";
     }
 
@@ -647,10 +654,10 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
             TarbaloParser.DimensaoContext dim = sel.dimensao(0);
             if (dim.PONTOPONTO() != null) {
                 String inicio = visit(dim.expressao(0));
-                String fim = visit(dim.expressao(1));
+                String fim = dim.expressao(1) != null ? visit(dim.expressao(1)) : nomeVetor + ".length - 1";
                 // Usar <= se intervalo for inclusivo (ajuste conforme semântica)
-                return "for (int __i = " + inicio + "; __i <= " + fim + "; __i++) {\n" +
-                    "    " + nomeVetor + "[__i]" + op + ";\n" +
+                return "for (int __tarbalo_i = " + inicio + "; __tarbalo_i <= " + fim + "; __tarbalo_i++) {\n" +
+                    "    " + nomeVetor + "[__tarbalo_i]" + op + ";\n" +
                     "}";
             }
         }
@@ -825,20 +832,48 @@ public class TarbaloTranspilador extends TarbaloBaseVisitor<String> {
 
         // Se a função é 'tamanho' ou 'tamanho_<tipo>', tratar especialmente (gera .length)
         if (nomeFunc.equals("tamanho") || nomeFunc.startsWith("tamanho_")) {
-            if (ctx.argumentos() == null || ctx.argumentos().expressao().isEmpty()) {
-                erro(ctx.start.getLine(), "tamanho requer um argumento");
-                return "";
-            }
             return visit(ctx.argumentos().expressao(0)) + ".length";
         }
 
-        // Se foi resolvido pelo analisador, use o nome do símbolo (que pode ter sufixo)
+        // Se foi resolvido pelo analisador, use o nome do símbolo
         if (fun != null) {
-            return fun.getNome() + "(" + argumentos + ")";
+            String nomeReal = fun.getNome();
+
+            // Se o nome é genérico (sem sufixo), adicionar sufixo do tipo
+            if (isNomeGenerico(nomeReal) && !fun.getTiposParametros().isEmpty()) {
+                String tipoPrimeiroParam = fun.getTiposParametros().get(0);
+                String sufixo = extrairSufixoTipo(tipoPrimeiroParam);
+                if (sufixo != null) {
+                    nomeReal = nomeReal + "_" + sufixo;
+                }
+            }
+
+            return nomeReal + "(" + argumentos + ")";
         }
 
-        // Fallback (não deve ocorrer)
-        return nomeFunc + "(" + argumentos + ")";
+        // Função não resolvida — não deveria chegar aqui se o analisador validou
+        System.err.println("Erro interno: função '" + nomeFunc + "' não resolvida pelo analisador semântico.");
+        return "/* ERRO: função não resolvida */";
+    }
+
+    /** Verifica se o nome é genérico (sem sufixo de tipo). */
+    private boolean isNomeGenerico(String nome) {
+        return nome.equals("ordenar") || nome.equals("inverter") ||
+               nome.equals("anexar") || nome.equals("inserir") ||
+               nome.equals("remover") || nome.equals("redim") ||
+               nome.equals("slice1d") || nome.equals("slice2d");
+    }
+
+    /** Extrai o sufixo do tipo do parâmetro. Ex: "int[]" → "int", "txt[][]" → "txt". */
+    private String extrairSufixoTipo(String tipoParam) {
+        if (tipoParam == null) return null;
+        // Remove todos os colchetes
+        String base = tipoParam.replaceAll("\\[\\]", "");
+        if (base.equals("int") || base.equals("qbd") || base.equals("txt") ||
+            base.equals("ltr") || base.equals("lgc")) {
+            return base;
+        }
+        return null;
     }
 
     // ======================================================================

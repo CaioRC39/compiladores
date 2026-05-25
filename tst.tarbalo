@@ -19,7 +19,7 @@ bora
         bglh int semValor.
 
         manda("=== Declarações ===").
-        manda("a:"; a; " b:"; b; " c:"; c; " d:"; d; " f:"; f).
+        manda("a:" & a & " b:" & b & " c:" & c & " d:" & d & " f:" & f).
 
         # -----------------------------------------------------------------
         # 2. Vetores estáticos com inicialização
@@ -31,9 +31,9 @@ bora
         bond lgc z[2]: [VDD; FAKE].
 
         manda("=== Vetores ===").
-        manda("v[0]:"; v[0]; " v[1]:"; v[1]; " v[2]:"; v[2]).
-        manda("w[0]:"; w[0]; " x[1]:"; x[1]; " y[2]:"; y[2]).
-        manda("z[0]:"; z[0]; " z[1]:"; z[1]).
+        manda("v[0]:" & v[0] & " v[1]:" & v[1] & " v[2]:" & v[2]).
+        manda("w[0]:" & w[0] & " x[1]:" & x[1] & " y[2]:" & y[2]).
+        manda("z[0]:" & z[0] & " z[1]:" & z[1]).
 
         # -----------------------------------------------------------------
         # 3. Vetores dinâmicos (tamanho em expressão)
@@ -43,7 +43,7 @@ bora
         din[0] : 100.
         din[4] : 999.
         manda("=== Vetor dinâmico ===").
-        manda("din[0]:"; din[0]; " din[4]:"; din[4]).
+        manda("din[0]:" & din[0] & " din[4]:" & din[4]).
 
         # -----------------------------------------------------------------
         # 4. Vetores multidimensionais
@@ -56,26 +56,26 @@ bora
         mat[1][1] : 5.
         mat[1][2] : 6.
         manda("=== Matriz 2x3 ===").
-        manda("mat[0][0]:"; mat[0][0]; " mat[1][2]:"; mat[1][2]).
+        manda("mat[0][0]:" & mat[0][0] & " mat[1][2]:" & mat[1][2]).
 
         # -----------------------------------------------------------------
         # 5. Operadores aritméticos e precedência
         # -----------------------------------------------------------------
         bglh int r: 10 + 5 * 2.
         manda("=== Aritmética ===").
-        manda("10 + 5 * 2 ="; r).
+        manda("10 + 5 * 2 =" & r).
 
         r : (10 + 5) * 2.
-        manda("(10 + 5) * 2 ="; r).
+        manda("(10 + 5) * 2 =" & r).
 
         r : 17 // 5.
-        manda("17 // 5 ="; r).
+        manda("17 // 5 =" & r).
 
         r : 17 % 5.
-        manda("17 % 5 ="; r).
+        manda("17 % 5 =" & r).
 
         r : 10 - 3 - 2.
-        manda("10 - 3 - 2 ="; r).
+        manda("10 - 3 - 2 =" & r).
 
         # -----------------------------------------------------------------
         # 6. Concatenação de texto (&)
@@ -93,21 +93,21 @@ bora
         # 7. Operadores relacionais
         # -----------------------------------------------------------------
         manda("=== Relacionais ===").
-        manda("5 > 3:"; 5 > 3).
-        manda("5 < 3:"; 5 < 3).
-        manda("5 = 5:"; 5 = 5).
-        manda("5 != 3:"; 5 != 3).
-        manda("5 >= 5:"; 5 >= 5).
-        manda("3 <= 5:"; 3 <= 5).
+        manda("5 > 3:" & (5 > 3)).
+        manda("5 < 3:" & (5 < 3)).
+        manda("5 = 5:" & (5 = 5)).
+        manda("5 != 3:" & (5 != 3)).
+        manda("5 >= 5:" & (5 >= 5)).
+        manda("3 <= 5:" & (3 <= 5)).
 
         # -----------------------------------------------------------------
         # 8. Operadores lógicos
         # -----------------------------------------------------------------
         manda("=== Lógicos ===").
-        manda("VDD e VDD:"; VDD e VDD).
-        manda("VDD ou FAKE:"; VDD ou FAKE).
-        manda("VDD xor VDD:"; VDD xor VDD).
-        manda("nao FAKE:"; nao FAKE).
+        manda("VDD e VDD:" & (VDD e VDD)).
+        manda("VDD ou FAKE:" & (VDD ou FAKE)).
+        manda("VDD xor VDD:" & (VDD xor VDD)).
+        manda("nao FAKE:" & (nao FAKE)).
 
         # -----------------------------------------------------------------
         # 9. Atribuições compostas
@@ -115,15 +115,15 @@ bora
         bglh int t: 100.
         manda("=== Atribuições compostas ===").
         t +: 5.
-        manda("t += 5 ->"; t).
+        manda("t += 5 ->" & t).
         t -: 3.
-        manda("t -= 3 ->"; t).
+        manda("t -= 3 ->" & t).
         t *: 2.
-        manda("t *= 2 ->"; t).
+        manda("t *= 2 ->" & t).
         t /: 4.
-        manda("t /= 4 ->"; t).
+        manda("t /= 4 ->" & t).
         t %: 7.
-        manda("t %= 7 ->"; t).
+        manda("t %= 7 ->" & t).
 
         # -----------------------------------------------------------------
         # 10. Incremento e decremento
@@ -133,9 +133,9 @@ bora
         inc++.
         inc++.
         manda("=== Incremento ===").
-        manda("inc após 3++:"; inc).
+        manda("inc após 3++:" & inc).
         inc--.
-        manda("inc após 1--:"; inc).
+        manda("inc após 1--:" & inc).
 
         # -----------------------------------------------------------------
         # 11. Condicional sepa/vish
@@ -157,7 +157,7 @@ bora
         manda("=== Enquanto ===").
         bglh int cont: 0.
         enquanto (cont < 3) {
-            manda("cont:"; cont).
+            manda("cont:" & cont).
             cont++.
         }.
 
@@ -167,7 +167,7 @@ bora
         manda("=== Faça-enquanto ===").
         cont : 0.
         faca {
-            manda("faca cont:"; cont).
+            manda("faca cont:" & cont).
             cont++.
         } enquanto (cont < 3).
 
@@ -176,13 +176,13 @@ bora
         # -----------------------------------------------------------------
         manda("=== Para ===").
         para (bglh int i : 0. i < 5. i++) {
-            manda("i:"; i).
+            manda("i:" & i).
         }.
 
         # Para com inicialização simples (sem VARIAVEL)
         bglh int j: 0.
         para (j : 0. j < 3. j++) {
-            manda("j:"; j).
+            manda("j:" & j).
         }.
 
         # -----------------------------------------------------------------
@@ -190,7 +190,7 @@ bora
         # -----------------------------------------------------------------
         manda("=== Pancada ===").
         pancada (bglh int elem em v) {
-            manda("elem:"; elem).
+            manda("elem:" & elem).
         }.
 
         # -----------------------------------------------------------------
@@ -203,9 +203,9 @@ bora
             sepa (k >= 3) {
                 morre.
             }.
-            manda("k antes do morre:"; k).
+            manda("k antes do morre:" & k).
         }.
-        manda("k final:"; k).
+        manda("k final:" & k).
 
         manda("=== Dale ===").
         bglh int m: 0.
@@ -214,7 +214,7 @@ bora
             sepa (m = 3) {
                 dale.
             }.
-            manda("m:"; m).
+            manda("m:" & m).
         }.
 
         # -----------------------------------------------------------------
@@ -225,7 +225,7 @@ bora
         }.
 
         func vazio imprimirSoma(int x. int y) {
-            manda("Soma:"; x + y).
+            manda("Soma:" & (x + y)).
         }.
 
         func int fibonacci(int n) {
@@ -237,57 +237,57 @@ bora
 
         manda("=== Funções ===").
         a : dobrar(7).
-        manda("dobrar(7):"; a).
+        manda("dobrar(7):" & a).
         imprimirSoma(3; 4).
-        manda("fibonacci(6):"; fibonacci(6)).
+        manda("fibonacci(6):" & fibonacci(6)).
 
         # -----------------------------------------------------------------
         # 18. Fatiamento de vetores (slice)
         # -----------------------------------------------------------------
         manda("=== Slice ===").
-        manda("v[0..1]:"; v[0..1]).
+        manda("v[0..1]:" & v[0..1]).
 
         # -----------------------------------------------------------------
         # 19. Funções da bondlib (vetores)
         # -----------------------------------------------------------------
         manda("=== Bondlib ===").
         bglh int tam: tamanho(v).
-        manda("tamanho(v):"; tam).
+        manda("tamanho(v):" & tam).
 
-        bond int fatia[]: slice1d_int(v; 0; 2).
-        manda("slice1d_int(v; 0; 2):"; fatia[0]; fatia[1]).
+        bond int fatia[]: slice1d(v; 0; 2).
+        manda("slice1d(v; 0; 2):" & fatia[0] & fatia[1]).
 
-        v : anexar_int(v; 99).
-        manda("anexar_int(v;99) tamanho:"; tamanho(v)).
+        v : anexar(v; 99).
+        manda("anexar(v;99) tamanho:" & tamanho(v)).
 
-        v : inserir_int(v; 1; 50).
-        manda("inserir_int(v;1;50) v[1]:"; v[1]).
+        v : inserir(v; 1; 50).
+        manda("inserir(v;1;50) v[1]:" & v[1]).
 
-        v : remover_int(v; 0).
-        manda("remover_int(v;0) v[0]:"; v[0]).
+        v : remover(v; 0).
+        manda("remover(v;0) v[0]:" & v[0]).
 
         bond int ordenado[5]: [5; 3; 1; 4; 2].
-        ordenar_int(ordenado).
-        manda("ordenar_int [5; 3; 1; 4; 2]:"; ordenado[0]; ordenado[1]; ordenado[2]; ordenado[3]; ordenado[4]).
+        ordenar(ordenado).
+        manda("ordenar [5; 3; 1; 4; 2]:" & ordenado[0] & ordenado[1] & ordenado[2] & ordenado[3] & ordenado[4]).
 
         bond int inv[3]: [10; 20; 30].
-        inverter_int(inv).
-        manda("inverter_int [10; 20; 30]:"; inv[0]; inv[1]; inv[2]).
+        inverter(inv).
+        manda("inverter [10; 20; 30]:" & inv[0] & inv[1] & inv[2]).
 
-        bond int red[]: redim_int(v; 3).
-        manda("redim_int(v;3) tamanho:"; tamanho(red)).
+        bond int red[]: redim(v; 3).
+        manda("redim(v;3) tamanho:" & tamanho(red)).
 
         # -----------------------------------------------------------------
         # 20. Vetores de outros tipos com bondlib
         # -----------------------------------------------------------------
         manda("=== Bondlib outros tipos ===").
         bond qbd decArr[3]: [1,1; 2,2; 3,3].
-        decArr : anexar_qbd(decArr; 4,4).
-        manda("anexar_qbd tamanho:"; tamanho(decArr)).
+        decArr : anexar(decArr; 4,4).
+        manda("anexar_qbd tamanho:" & tamanho(decArr)).
 
         bond txt txtArr[2]: ["hello"; "world"].
-        txtArr : anexar_txt(txtArr; "!").
-        manda("anexar_txt tamanho:"; tamanho(txtArr); " último:"; txtArr[2]).
+        txtArr : anexar(txtArr; "!").
+        manda("anexar_txt tamanho:" & tamanho(txtArr) & " último:" & txtArr[2]).
 
         # -----------------------------------------------------------------
         # 21. Blocos aninhados
@@ -295,10 +295,10 @@ bora
         manda("=== Blocos aninhados ===").
         {
             bglh int escopo: 42.
-            manda("escopo interno:"; escopo).
+            manda("escopo interno:" & escopo).
             {
                 bglh int escopo2: 99.
-                manda("escopo aninhado:"; escopo2).
+                manda("escopo aninhado:" & escopo2).
             }.
         }.
 
@@ -308,7 +308,7 @@ bora
         manda("=== Laços aninhados ===").
         para (bglh int ii : 0. ii < 3. ii++) {
             para (bglh int jj : 0. jj < 2. jj++) {
-                manda("ii:"; ii; " jj:"; jj).
+                manda("ii:" & ii & " jj:" & jj).
             }.
         }.
 

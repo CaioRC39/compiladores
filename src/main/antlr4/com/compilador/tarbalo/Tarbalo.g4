@@ -158,7 +158,7 @@ leitura:
 escrita:
     ESCREVA
     ABREPARENTE
-        (expressao (PONTIVIRGULA expressao)*)?
+        expressao?
     FECHAPARENTE
     PONTO
 ;
@@ -346,6 +346,7 @@ operando:
     | variavel
     | chamadaFuncao
     | ABREPARENTE expressao FECHAPARENTE
+    | MENOS operando  // unário negativo
 ;
 
 // ---------- 11. Chamada de função ----------

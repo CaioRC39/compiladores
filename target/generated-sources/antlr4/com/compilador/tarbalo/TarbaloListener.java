@@ -78,15 +78,15 @@ public interface TarbaloListener extends ParseTreeListener {
 	 */
 	void exitTipoRetorno(TarbaloParser.TipoRetornoContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TarbaloParser#dimensaoVetor}.
+	 * Enter a parse tree produced by {@link TarbaloParser#dimensao}.
 	 * @param ctx the parse tree
 	 */
-	void enterDimensaoVetor(TarbaloParser.DimensaoVetorContext ctx);
+	void enterDimensao(TarbaloParser.DimensaoContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link TarbaloParser#dimensaoVetor}.
+	 * Exit a parse tree produced by {@link TarbaloParser#dimensao}.
 	 * @param ctx the parse tree
 	 */
-	void exitDimensaoVetor(TarbaloParser.DimensaoVetorContext ctx);
+	void exitDimensao(TarbaloParser.DimensaoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#declaracaoVetor}.
 	 * @param ctx the parse tree
@@ -207,16 +207,6 @@ public interface TarbaloListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEscrita(TarbaloParser.EscritaContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TarbaloParser#selecaoVariavel}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelecaoVariavel(TarbaloParser.SelecaoVariavelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TarbaloParser#selecaoVariavel}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelecaoVariavel(TarbaloParser.SelecaoVariavelContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#atribuicao}.
 	 * @param ctx the parse tree
@@ -438,6 +428,16 @@ public interface TarbaloListener extends ParseTreeListener {
 	 */
 	void exitExpressaoAditiva(TarbaloParser.ExpressaoAditivaContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link TarbaloParser#expressaoConcatenacao}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressaoConcatenacao(TarbaloParser.ExpressaoConcatenacaoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TarbaloParser#expressaoConcatenacao}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressaoConcatenacao(TarbaloParser.ExpressaoConcatenacaoContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#expressaoMultiplicativa}.
 	 * @param ctx the parse tree
 	 */
@@ -448,16 +448,6 @@ public interface TarbaloListener extends ParseTreeListener {
 	 */
 	void exitExpressaoMultiplicativa(TarbaloParser.ExpressaoMultiplicativaContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TarbaloParser#expressaoUnaria}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpressaoUnaria(TarbaloParser.ExpressaoUnariaContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TarbaloParser#expressaoUnaria}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpressaoUnaria(TarbaloParser.ExpressaoUnariaContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#operando}.
 	 * @param ctx the parse tree
 	 */
@@ -467,26 +457,6 @@ public interface TarbaloListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitOperando(TarbaloParser.OperandoContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TarbaloParser#acessoVetor}.
-	 * @param ctx the parse tree
-	 */
-	void enterAcessoVetor(TarbaloParser.AcessoVetorContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TarbaloParser#acessoVetor}.
-	 * @param ctx the parse tree
-	 */
-	void exitAcessoVetor(TarbaloParser.AcessoVetorContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TarbaloParser#acessoDimensao}.
-	 * @param ctx the parse tree
-	 */
-	void enterAcessoDimensao(TarbaloParser.AcessoDimensaoContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TarbaloParser#acessoDimensao}.
-	 * @param ctx the parse tree
-	 */
-	void exitAcessoDimensao(TarbaloParser.AcessoDimensaoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TarbaloParser#chamadaFuncao}.
 	 * @param ctx the parse tree

@@ -101,13 +101,13 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDimensaoVetor(TarbaloParser.DimensaoVetorContext ctx) { }
+	@Override public void enterDimensao(TarbaloParser.DimensaoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDimensaoVetor(TarbaloParser.DimensaoVetorContext ctx) { }
+	@Override public void exitDimensao(TarbaloParser.DimensaoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -252,18 +252,6 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEscrita(TarbaloParser.EscritaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelecaoVariavel(TarbaloParser.SelecaoVariavelContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelecaoVariavel(TarbaloParser.SelecaoVariavelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -533,6 +521,18 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExpressaoConcatenacao(TarbaloParser.ExpressaoConcatenacaoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpressaoConcatenacao(TarbaloParser.ExpressaoConcatenacaoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpressaoMultiplicativa(TarbaloParser.ExpressaoMultiplicativaContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -545,18 +545,6 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpressaoUnaria(TarbaloParser.ExpressaoUnariaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpressaoUnaria(TarbaloParser.ExpressaoUnariaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterOperando(TarbaloParser.OperandoContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -564,30 +552,6 @@ public class TarbaloBaseListener implements TarbaloListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitOperando(TarbaloParser.OperandoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAcessoVetor(TarbaloParser.AcessoVetorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAcessoVetor(TarbaloParser.AcessoVetorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAcessoDimensao(TarbaloParser.AcessoDimensaoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAcessoDimensao(TarbaloParser.AcessoDimensaoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

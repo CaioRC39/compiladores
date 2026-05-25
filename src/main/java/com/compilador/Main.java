@@ -56,10 +56,6 @@ public class Main {
             Files.writeString(Path.of("ProgramaSaida.java"), codigoJava);
             System.out.println("Transpilação concluída! Código gerado em ProgramaSaida.java");
         }
-
-        if (transpilador.houveErros()) {
-            System.err.println("Atenção: foram encontrados erros durante a geração do código.");
-        }
     }
 
     private static TarbaloParser.ProgramaContext parseFile(String path) throws IOException {
@@ -84,10 +80,64 @@ public class Main {
     }
 
     private static void adicionarBuiltins(TabelaSimbolos tabela) {
+        // tamanho
         tabela.adicionar(new Simbolo("tamanho", "int", List.of("int[]"), false));
         tabela.adicionar(new Simbolo("tamanho", "int", List.of("qbd[]"), false));
         tabela.adicionar(new Simbolo("tamanho", "int", List.of("txt[]"), false));
         tabela.adicionar(new Simbolo("tamanho", "int", List.of("ltr[]"), false));
         tabela.adicionar(new Simbolo("tamanho", "int", List.of("lgc[]"), false));
+        tabela.adicionar(new Simbolo("tamanho", "int", List.of("int[][]"), false));
+        tabela.adicionar(new Simbolo("tamanho", "int", List.of("qbd[][]"), false));
+        tabela.adicionar(new Simbolo("tamanho", "int", List.of("txt[][]"), false));
+        tabela.adicionar(new Simbolo("tamanho", "int", List.of("ltr[][]"), false));
+        tabela.adicionar(new Simbolo("tamanho", "int", List.of("lgc[][]"), false));
+
+        // ordenar
+        tabela.adicionar(new Simbolo("ordenar", "vazio", List.of("int[]"), false));
+        tabela.adicionar(new Simbolo("ordenar", "vazio", List.of("qbd[]"), false));
+        tabela.adicionar(new Simbolo("ordenar", "vazio", List.of("txt[]"), false));
+        tabela.adicionar(new Simbolo("ordenar", "vazio", List.of("ltr[]"), false));
+
+        // inverter
+        tabela.adicionar(new Simbolo("inverter", "vazio", List.of("int[]"), false));
+        tabela.adicionar(new Simbolo("inverter", "vazio", List.of("qbd[]"), false));
+        tabela.adicionar(new Simbolo("inverter", "vazio", List.of("txt[]"), false));
+        tabela.adicionar(new Simbolo("inverter", "vazio", List.of("ltr[]"), false));
+        tabela.adicionar(new Simbolo("inverter", "vazio", List.of("lgc[]"), false));
+
+        // anexar
+        tabela.adicionar(new Simbolo("anexar", "int[]", List.of("int[]", "int"), false));
+        tabela.adicionar(new Simbolo("anexar", "qbd[]", List.of("qbd[]", "qbd"), false));
+        tabela.adicionar(new Simbolo("anexar", "txt[]", List.of("txt[]", "txt"), false));
+        tabela.adicionar(new Simbolo("anexar", "ltr[]", List.of("ltr[]", "ltr"), false));
+        tabela.adicionar(new Simbolo("anexar", "lgc[]", List.of("lgc[]", "lgc"), false));
+
+        // inserir
+        tabela.adicionar(new Simbolo("inserir", "int[]", List.of("int[]", "int", "int"), false));
+        tabela.adicionar(new Simbolo("inserir", "qbd[]", List.of("qbd[]", "int", "qbd"), false));
+        tabela.adicionar(new Simbolo("inserir", "txt[]", List.of("txt[]", "int", "txt"), false));
+        tabela.adicionar(new Simbolo("inserir", "ltr[]", List.of("ltr[]", "int", "ltr"), false));
+        tabela.adicionar(new Simbolo("inserir", "lgc[]", List.of("lgc[]", "int", "lgc"), false));
+
+        // remover
+        tabela.adicionar(new Simbolo("remover", "int[]", List.of("int[]", "int"), false));
+        tabela.adicionar(new Simbolo("remover", "qbd[]", List.of("qbd[]", "int"), false));
+        tabela.adicionar(new Simbolo("remover", "txt[]", List.of("txt[]", "int"), false));
+        tabela.adicionar(new Simbolo("remover", "ltr[]", List.of("ltr[]", "int"), false));
+        tabela.adicionar(new Simbolo("remover", "lgc[]", List.of("lgc[]", "int"), false));
+
+        // redim
+        tabela.adicionar(new Simbolo("redim", "int[]", List.of("int[]", "int"), false));
+        tabela.adicionar(new Simbolo("redim", "qbd[]", List.of("qbd[]", "int"), false));
+        tabela.adicionar(new Simbolo("redim", "txt[]", List.of("txt[]", "int"), false));
+        tabela.adicionar(new Simbolo("redim", "ltr[]", List.of("ltr[]", "int"), false));
+        tabela.adicionar(new Simbolo("redim", "lgc[]", List.of("lgc[]", "int"), false));
+
+        // slice1d
+        tabela.adicionar(new Simbolo("slice1d", "int[]", List.of("int[]", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice1d", "qbd[]", List.of("qbd[]", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice1d", "txt[]", List.of("txt[]", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice1d", "ltr[]", List.of("ltr[]", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice1d", "lgc[]", List.of("lgc[]", "int", "int"), false));
     }
 }

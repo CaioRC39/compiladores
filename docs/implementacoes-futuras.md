@@ -182,3 +182,30 @@ Lançar `ArrayIndexOutOfBoundsException` quando:
 Lançar `NegativeArraySizeException` quando:
 
 * `novoTam < 0`
+
+---
+
+## 6. Alteração da precedência do operador de concatenação (`&`)
+
+Atualmente, o operador `&` (concatenação) tem precedência **maior** que `+`, `-`, operadores relacionais e lógicos. Isso obriga o uso de parênteses em expressões comuns:
+
+```tarbalo
+manda("a:" & a & " b:" & (x + y)).
+manda("5 > 3:" & (5 > 3)).
+manda("VDD e VDD:" & (VDD e VDD)).
+```
+
+Objetivo
+
+Alterar a precedência de & para ser a menor de todas (abaixo de ou), eliminando a necessidade de parênteses:
+
+```tarbalo
+manda("a:" & a & " b:" & x + y).
+manda("5 > 3:" & 5 > 3).
+manda("VDD e VDD:" & VDD e VDD).
+```
+
+Impacto
+- Alterar a gramática (Tarbalo.g4): mover a regra expressaoConcatenacao para o nível mais alto da hierarquia de precedência (acima de expressao ou como alternativa dentro dela)
+- Avaliar impacto no AnalisadorSemântico e TarbaloTranspilador
+- Verificar se a associatividade à esquerda é preservada (a & b & c deve continuar agrupando da esquerda)

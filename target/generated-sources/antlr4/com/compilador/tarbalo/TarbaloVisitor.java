@@ -53,11 +53,11 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTipoRetorno(TarbaloParser.TipoRetornoContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TarbaloParser#dimensaoVetor}.
+	 * Visit a parse tree produced by {@link TarbaloParser#dimensao}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDimensaoVetor(TarbaloParser.DimensaoVetorContext ctx);
+	T visitDimensao(TarbaloParser.DimensaoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#declaracaoVetor}.
 	 * @param ctx the parse tree
@@ -130,12 +130,6 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitEscrita(TarbaloParser.EscritaContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TarbaloParser#selecaoVariavel}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelecaoVariavel(TarbaloParser.SelecaoVariavelContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#atribuicao}.
 	 * @param ctx the parse tree
@@ -269,35 +263,23 @@ public interface TarbaloVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpressaoAditiva(TarbaloParser.ExpressaoAditivaContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TarbaloParser#expressaoConcatenacao}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressaoConcatenacao(TarbaloParser.ExpressaoConcatenacaoContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#expressaoMultiplicativa}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExpressaoMultiplicativa(TarbaloParser.ExpressaoMultiplicativaContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TarbaloParser#expressaoUnaria}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpressaoUnaria(TarbaloParser.ExpressaoUnariaContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#operando}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitOperando(TarbaloParser.OperandoContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TarbaloParser#acessoVetor}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAcessoVetor(TarbaloParser.AcessoVetorContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TarbaloParser#acessoDimensao}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAcessoDimensao(TarbaloParser.AcessoDimensaoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TarbaloParser#chamadaFuncao}.
 	 * @param ctx the parse tree

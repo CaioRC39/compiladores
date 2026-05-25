@@ -17,6 +17,10 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     private Map<ParseTree, String> mapaTiposExpressao = new HashMap<>();
     private int nivelLaco = 0;
     private boolean dentroDeFuncao = false;
+    private int profundidadeEstruturaControle = 0;
+
+    // Rastreamento de variáveis inicializadas
+    private Deque<Set<String>> pilhaVariaveisInicializadas = new ArrayDeque<>();
 
     private boolean erros = false;
 
@@ -24,6 +28,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
     public AnalisadorSemantico(TabelaSimbolos tabela) {
         this.tabela = tabela;
+        pilhaVariaveisInicializadas.push(new HashSet<>());
     }
 
     public TabelaSimbolos getTabela() {
@@ -48,11 +53,15 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     @Override
     public void enterCmdBloco(TarbaloParser.CmdBlocoContext ctx) {
         tabela.abrirEscopo();
+        pilhaVariaveisInicializadas.push(new HashSet<>());
     }
 
     @Override
     public void exitCmdBloco(TarbaloParser.CmdBlocoContext ctx) {
         tabela.fecharEscopo();
+        if (pilhaVariaveisInicializadas.size() > 1) {
+            pilhaVariaveisInicializadas.pop();
+        }
     }
 
     @Override
@@ -87,6 +96,8 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                 erros = true;
                 System.err.println("Erro Semântico (Linha " + linha + "): Tipo incompatível na inicialização. A variável '" + nomeVar + "' é do tipo '" + tipoVar + "', mas recebeu um valor do tipo '" + tipoExpr + "'.");
             }
+            // Marcar como inicializada
+            marcarInicializada(nomeVar);
         }
     }
 
@@ -116,6 +127,10 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             } else {
                 Integer tam = extrairNumero(dimCtx.expressao(0));
                 if (tam != null) {
+                    if (tam < 0) {
+                        erros = true;
+                        System.err.println("Erro Semântico (Linha " + linha + "): Tamanho de vetor não pode ser negativo, mas recebeu " + tam + ".");
+                    }
                     tamanhos.add(tam);
                 } else {
                     dinamico = true;
@@ -265,6 +280,54 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             System.err.println("Erro Semântico (Linha " + linha + "): Tipo incompatível na atribuição. A variável '" + nomeVar + "' é do tipo '" + tipoVar + "', mas a expressão resulta em '" + tipoExpr + "'.");
             erros = true;
         }
+
+        // Marcar como inicializada
+        marcarInicializada(nomeVar);
+    }
+
+    /* ---------------------------------------------------------------------
+     * RASTREAMENTO DE VARIÁVEIS INICIALIZADAS
+     * --------------------------------------------------------------------- */
+
+    /** Marca uma variável como inicializada no escopo atual. */
+    private void marcarInicializada(String nomeVar) {
+        if (!pilhaVariaveisInicializadas.isEmpty()) {
+            pilhaVariaveisInicializadas.peek().add(nomeVar);
+        }
+    }
+
+    /** Verifica se uma variável foi inicializada em algum escopo acessível. */
+    private boolean isInicializada(String nomeVar) {
+        for (Set<String> escopo : pilhaVariaveisInicializadas) {
+            if (escopo.contains(nomeVar)) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void enterIncremento(TarbaloParser.IncrementoContext ctx) {
+        String nomeVar = obterNome(ctx.variavel());
+        int linha = ctx.start.getLine();
+        if (nomeVar == null) return;
+
+        Simbolo s = tabela.buscar(nomeVar);
+        if (s == null) return;
+
+        // Proibir vetor inteiro
+        if (s.getCategoria() == Simbolo.Categoria.VETOR && ctx.variavel().dimensao().isEmpty()) {
+            System.err.println("Erro Semântico (Linha " + linha + "): Não é permitido incrementar um vetor inteiro.");
+            erros = true;
+            return;
+        }
+
+        // Verificar tipo numérico
+        String tipo = s.getTipoBase();
+        if (!tipo.equals("int") && !tipo.equals("qbd") && !tipo.equals("ltr")) {
+            System.err.println("Erro Semântico (Linha " + linha + "): Operador '++' não aplicável ao tipo '" + tipo + "'.");
+            erros = true;
+        }
+        // ++ inicializa a variável
+        marcarInicializada(nomeVar);
     }
 
     @Override
@@ -289,6 +352,8 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
             System.err.println("Erro Semântico (Linha " + linha + "): Operador '--' não aplicável ao tipo '" + tipo + "'.");
             erros = true;
         }
+        // -- inicializa a variável
+        marcarInicializada(nomeVar);
     }
 
     /* ---------------------------------------------------------------------
@@ -312,6 +377,9 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                 System.err.println("Erro Semântico (Linha " + ctx.start.getLine() +
                     "): Variável '" + nomeVar + "' usada no comando 'leia' não foi declarada!");
                 erros = true;
+            } else {
+                // leia inicializa a variável
+                marcarInicializada(nomeVar);
             }
         }
     }
@@ -337,6 +405,13 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     public void enterDeclaracaoFuncao(TarbaloParser.DeclaracaoFuncaoContext ctx) {
         String nome = ctx.ID().getText();
         int linha = ctx.start.getLine();
+
+        // Proibir declaração de função dentro de estruturas de controle
+        if (profundidadeEstruturaControle > 0) {
+            erros = true;
+            System.err.println("Erro Semântico (Linha " + linha + "): Não é permitido declarar funções dentro de estruturas de controle.");
+            return;
+        }
 
         if (tabela.existeNoEscopoAtual(nome)) {
             erros = true;
@@ -370,6 +445,15 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     @Override
     public void exitDeclaracaoFuncao(TarbaloParser.DeclaracaoFuncaoContext ctx) {
         String nome = ctx.ID().getText();
+        String tipoRetorno = ctx.tipoRetorno().getText();
+        int linha = ctx.start.getLine();
+
+        // Verificar se a função não-vazia sempre retorna um valor
+        if (!tipoRetorno.equals("vazio") && !blocoSempreRetorna(ctx.bloco())) {
+            erros = true;
+            System.err.println("Erro Semântico (Linha " + linha + "): Função '" + nome + "' pode não retornar valor em todos os caminhos.");
+        }
+
         tabela.fecharEscopo(); // fecha o escopo da função (inclui parâmetros e corpo)
         dentroDeFuncao = false;
         pilhaRetornos.pop();
@@ -412,6 +496,8 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         } else {
             tabela.adicionar(new Simbolo(nome, tipoBase));
         }
+        // Parâmetros são inicializados pelo chamador
+        marcarInicializada(nome);
     }
 
     /* ---------------------------------------------------------------------
@@ -445,42 +531,59 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     /* ---------------------------------------------------------------------
      * LAÇOS (pare, continuar)
      * --------------------------------------------------------------------- */
+    // ---------- SE (condicional) ----------
+    @Override
+    public void enterCmdSe(TarbaloParser.CmdSeContext ctx) {
+        profundidadeEstruturaControle++;
+    }
+    @Override
+    public void exitCmdSe(TarbaloParser.CmdSeContext ctx) {
+        profundidadeEstruturaControle--;
+    }
+
     // ---------- ENQUANTO (laço) ----------
     @Override
     public void enterCmdEnquanto(TarbaloParser.CmdEnquantoContext ctx) {
         nivelLaco++;
+        profundidadeEstruturaControle++;
     }
     @Override
     public void exitCmdEnquanto(TarbaloParser.CmdEnquantoContext ctx) {
         nivelLaco--;
+        profundidadeEstruturaControle--;
     }
 
     // ---------- FACA-ENQUANTO (laço + controle) ----------
     @Override
     public void enterCmdFacaEnquanto(TarbaloParser.CmdFacaEnquantoContext ctx) {
         nivelLaco++;
+        profundidadeEstruturaControle++;
     }
     @Override
     public void exitCmdFacaEnquanto(TarbaloParser.CmdFacaEnquantoContext ctx) {
         nivelLaco--;
+        profundidadeEstruturaControle--;
     }
 
     // ---------- PARA (laço + controle + escopo próprio) ----------
     @Override
     public void enterCmdPara(TarbaloParser.CmdParaContext ctx) {
         nivelLaco++;
+        profundidadeEstruturaControle++;
         tabela.abrirEscopo();
     }
     @Override
     public void exitCmdPara(TarbaloParser.CmdParaContext ctx) {
         tabela.fecharEscopo();
         nivelLaco--;
+        profundidadeEstruturaControle--;
     }
 
     // ---------- PARACADA (laço + controle + escopo próprio) ----------
     @Override
     public void enterCmdParaCada(TarbaloParser.CmdParaCadaContext ctx) {
         nivelLaco++;
+        profundidadeEstruturaControle++;
         tabela.abrirEscopo();
         // O resto do método permanece igual: declaração da variável de iteração, etc.
         String nome = ctx.ID().getText();
@@ -491,6 +594,8 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         } else {
             tabela.adicionar(new Simbolo(nome, tipo));
         }
+        // Iterador de pancada é inicializado pela expressão do vetor
+        marcarInicializada(nome);
 
         AvaliadorDeTipos avaliador = new AvaliadorDeTipos(ctx.start.getLine());
         String tipoExpr = avaliador.visit(ctx.expressao());
@@ -499,12 +604,24 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                 "): A expressão em 'pancada' deve ser um vetor, mas é do tipo '" + tipoExpr + "'.");
             erros = true;
         }
+
+        // Validar compatibilidade entre tipo do iterador e tipo base do vetor
+        if (!tipoExpr.equals("erro") && tipoExpr.contains("[]")) {
+            String tipoBaseVetor = tipoExpr.replace("[]", "");
+            if (!saoCompativeis(tipo, tipoBaseVetor) && !tipo.equals("desconhecido")) {
+                System.err.println("Erro Semântico (Linha " + ctx.start.getLine() +
+                    "): Tipo incompatível em 'pancada'. O iterador é do tipo '" + tipo +
+                    "', mas o vetor contém elementos do tipo '" + tipoBaseVetor + "'.");
+                erros = true;
+            }
+        }
     }
 
     @Override
     public void exitCmdParaCada(TarbaloParser.CmdParaCadaContext ctx) {
         tabela.fecharEscopo();
         nivelLaco--;
+        profundidadeEstruturaControle--;
     }
 
     @Override
@@ -519,6 +636,8 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                 erros = true;
             } else {
                 tabela.adicionar(new Simbolo(nome, tipo));
+                // Variável de inicialização do para é inicializada pela própria declaração
+                marcarInicializada(nome);
 
                 // Verificar compatibilidade da expressão de inicialização
                 AvaliadorDeTipos avaliador = new AvaliadorDeTipos(linha);
@@ -554,6 +673,15 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
     public void enterChamadaFuncao(TarbaloParser.ChamadaFuncaoContext ctx) {
         String nome = ctx.ID().getText();
         int linha = ctx.start.getLine();
+
+        // Validar que 'tamanho' recebeu ao menos um argumento
+        if (nome.equals("tamanho") || nome.startsWith("tamanho_")) {
+            if (ctx.argumentos() == null || ctx.argumentos().expressao().isEmpty()) {
+                System.err.println("Erro Semântico (Linha " + linha + "): Função 'tamanho' requer um argumento.");
+                erros = true;
+                return;
+            }
+        }
 
         // Avaliar tipos dos argumentos UMA única vez
         AvaliadorDeTipos av = new AvaliadorDeTipos(linha);
@@ -617,6 +745,7 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         if (tipoExpr.equals("erro")) return false;
         if (tipoVar.equals(tipoExpr)) return true;
         if (tipoVar.equals("qbd") && tipoExpr.equals("int")) return true; // int cabe em qbd
+        if (tipoVar.equals("int") && tipoExpr.equals("ltr")) return true; // ltr cabe em int
         // int[] cabe em qbd[], int[][] cabe em qbd[][], etc.
         if (tipoVar.startsWith("qbd") && tipoExpr.startsWith("int")) {
             String sufixoVar = tipoVar.substring(3);
@@ -665,7 +794,15 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
         var mul = conc.expressaoMultiplicativa(0);
         if (mul.operando().size() != 1) return null;
         var op = mul.operando(0);
-        if (op.NUM() != null) return Integer.parseInt(op.NUM().getText());
+        if (op.NUM() != null) {
+            try {
+                return Integer.parseInt(op.NUM().getText());
+            } catch (NumberFormatException nfe) {
+                System.err.println("Erro Semântico (Linha " + op.NUM().getSymbol().getLine() + "): Número inteiro muito grande: " + op.NUM().getText());
+                erros = true;
+                return null;
+            }
+        }
         return null;
     }
 
@@ -680,6 +817,39 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
 
         // Tipos iguais (texto, car, logico)
         return tipoEsq.equals(tipoDir);
+    }
+
+    /* ======================================================================
+     * ANÁLISE DE RETORNO DEFINITIVO
+     * ====================================================================== */
+
+    /**
+     * Verifica se um bloco SEMPRE executa um 'receba' em todos os caminhos.
+     * Regras (mesma lógica do Java):
+     *   - Último comando é 'retorno' → true
+     *   - Último comando é 'sepa/senao' onde AMBOS os blocos retornam → true
+     *   - Qualquer outra coisa → false
+     */
+    private boolean blocoSempreRetorna(TarbaloParser.BlocoContext bloco) {
+        if (bloco == null || bloco.comando().isEmpty()) return false;
+
+        // Verificar o ÚLTIMO comando do bloco
+        TarbaloParser.ComandoContext ultimoCmd = bloco.comando().get(bloco.comando().size() - 1);
+
+        // Regra 1: receba → sempre retorna
+        if (ultimoCmd.retorno() != null) return true;
+
+        // Regra 2: sepa/senao → retorna se AMBOS os caminhos retornam
+        if (ultimoCmd.cmdSe() != null) {
+            TarbaloParser.CmdSeContext se = ultimoCmd.cmdSe();
+            boolean ifRetorna = blocoSempreRetorna(se.bloco(0));
+            boolean elseRetorna = se.bloco().size() > 1
+                                   && blocoSempreRetorna(se.bloco(1));
+            return ifRetorna && elseRetorna;
+        }
+
+        // Regra 3: laços, comandos simples, etc. → não garante retorno
+        return false;
     }
 
 
@@ -722,6 +892,10 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                 }
                 // Se não tem dimensão, é variável simples
                 if (ctx.variavel().dimensao().isEmpty()) {
+                    // Verificar se a variável foi inicializada
+                    if (s.getCategoria() == Simbolo.Categoria.VARIAVEL && !isInicializada(nomeVar)) {
+                        System.err.println("Aviso Semântico (Linha " + linha + "): Variável '" + nomeVar + "' pode não ter sido inicializada.");
+                    }
                     return s.getTipo();
                 }
                 // Se tem dimensão, é acesso a vetor
@@ -730,12 +904,19 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                     erros = true;
                     return "erro";
                 }
-                // Verifica se há slice
+                // Verifica se há slice e valida tipos dos índices
                 boolean isSlice = false;
                 for (TarbaloParser.DimensaoContext dim : ctx.variavel().dimensao()) {
                     if (dim.PONTOPONTO() != null) {
                         isSlice = true;
-                        break;
+                    }
+                    // Validar que as expressões de índice são do tipo int
+                    for (TarbaloParser.ExpressaoContext exprCtx : dim.expressao()) {
+                        String tipoIdx = visit(exprCtx);
+                        if (!tipoIdx.equals("erro") && !tipoIdx.equals("desconhecido") && !tipoIdx.equals("int")) {
+                            System.err.println("Erro Semântico (Linha " + linha + "): Índice de vetor deve ser do tipo 'int', mas recebeu '" + tipoIdx + "'.");
+                            erros = true;
+                        }
                     }
                 }
                 return isSlice ? s.getTipoBase() + "[]" : s.getTipoBase();
@@ -766,6 +947,18 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                     return ret;
                 }
                 return "desconhecido";
+            }
+
+            // Unário negativo: -operando
+            if (ctx.MENOS() != null && ctx.operando() != null) {
+                String tipo = visit(ctx.operando());
+                if (tipo.equals("erro") || tipo.equals("desconhecido")) return tipo;
+                if (!tipo.equals("int") && !tipo.equals("qbd")) {
+                    System.err.println("Erro Semântico (Linha " + linha + "): Operador unário '-' não aplicável ao tipo '" + tipo + "'.");
+                    erros = true;
+                    return "erro";
+                }
+                return tipo;
             }
 
             return "desconhecido";
@@ -873,6 +1066,31 @@ public class AnalisadorSemantico extends TarbaloBaseListener {
                 return "txt";
             }
             return visit(ctx.expressaoMultiplicativa(0));
+        }
+
+        @Override
+        public String visitExpressaoAditiva(TarbaloParser.ExpressaoAditivaContext ctx) {
+            String tipoEsq = visit(ctx.expressaoConcatenacao(0));
+            if (ctx.expressaoConcatenacao().size() == 1) return tipoEsq;
+
+            for (int i = 1; i < ctx.expressaoConcatenacao().size(); i++) {
+                String tipoDir = visit(ctx.expressaoConcatenacao(i));
+                if (tipoEsq.equals("erro") || tipoDir.equals("erro") ||
+                    tipoEsq.equals("desconhecido") || tipoDir.equals("desconhecido")) {
+                    return "erro";
+                }
+                if (!ehNumerico(tipoEsq) || !ehNumerico(tipoDir)) {
+                    erros = true;
+                    System.err.println("Erro Semântico (Linha " + linha + "): Operadores '+' e '-' exigem operandos numéricos, mas recebeu '" + tipoEsq + "' e '" + tipoDir + "'. Use '&' para concatenação.");
+                    return "erro";
+                }
+                tipoEsq = tipoEsq.equals("qbd") || tipoDir.equals("qbd") ? "qbd" : "int";
+            }
+            return tipoEsq;
+        }
+
+        private boolean ehNumerico(String tipo) {
+            return tipo.equals("int") || tipo.equals("qbd") || tipo.equals("ltr");
         }
 
         @Override

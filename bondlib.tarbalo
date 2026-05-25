@@ -6,6 +6,12 @@ bora
 # ---------- int[] ----------
 
 func int[] slice1d_int(int arr[]. int ini. int fimExcl) {
+    bglh int tamArr: tamanho(arr).
+    sepa (ini < 0 ou ini > tamArr ou fimExcl < 0 ou fimExcl > tamArr) {
+        manda("Erro: limites invalidos em slice1d_int").
+        bond int arrErro[0].
+        receba arrErro.
+    }.
     bglh int tam: fimExcl - ini.
     sepa (tam <= 0) {
         bond int arrVazio[0].
@@ -46,6 +52,10 @@ func int[] anexar_int(int arr[]. int elem) {
 
 func int[] inserir_int(int arr[]. int pos. int elem) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos > tam) {
+        manda("Erro: posicao invalida em inserir_int").
+        receba arr.
+    }.
     bond int novo[tam + 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -59,6 +69,10 @@ func int[] inserir_int(int arr[]. int pos. int elem) {
 
 func int[] remover_int(int arr[]. int pos) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos >= tam) {
+        manda("Erro: posicao invalida em remover_int").
+        receba arr.
+    }.
     bond int novo[tam - 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -93,6 +107,10 @@ func vazio inverter_int(int arr[]) {
 
 func int[] redim_int(int arr[]. int novoTam) {
     bglh int tam: tamanho(arr).
+    sepa (novoTam < 0) {
+        manda("Erro: tamanho invalido em redim_int").
+        receba arr.
+    }.
     bond int novo[novoTam].
     bglh int lim: novoTam.
     sepa (tam < lim) { lim : tam. }.
@@ -105,6 +123,12 @@ func int[] redim_int(int arr[]. int novoTam) {
 # ---------- qbd[] (decimal) ----------
 
 func qbd[] slice1d_qbd(qbd arr[]. int ini. int fimExcl) {
+    bglh int tamArr: tamanho(arr).
+    sepa (ini < 0 ou ini > tamArr ou fimExcl < 0 ou fimExcl > tamArr) {
+        manda("Erro: limites invalidos em slice1d_qbd").
+        bond qbd arrErro[0].
+        receba arrErro.
+    }.
     bglh int tam: fimExcl - ini.
     sepa (tam <= 0) {
         bond qbd arrVazio[0].
@@ -145,6 +169,10 @@ func qbd[] anexar_qbd(qbd arr[]. qbd elem) {
 
 func qbd[] inserir_qbd(qbd arr[]. int pos. qbd elem) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos > tam) {
+        manda("Erro: posicao invalida em inserir_qbd").
+        receba arr.
+    }.
     bond qbd novo[tam + 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -158,6 +186,10 @@ func qbd[] inserir_qbd(qbd arr[]. int pos. qbd elem) {
 
 func qbd[] remover_qbd(qbd arr[]. int pos) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos >= tam) {
+        manda("Erro: posicao invalida em remover_qbd").
+        receba arr.
+    }.
     bond qbd novo[tam - 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -192,6 +224,10 @@ func vazio inverter_qbd(qbd arr[]) {
 
 func qbd[] redim_qbd(qbd arr[]. int novoTam) {
     bglh int tam: tamanho(arr).
+    sepa (novoTam < 0) {
+        manda("Erro: tamanho invalido em redim_qbd").
+        receba arr.
+    }.
     bond qbd novo[novoTam].
     bglh int lim: novoTam.
     sepa (tam < lim) { lim : tam. }.
@@ -204,6 +240,12 @@ func qbd[] redim_qbd(qbd arr[]. int novoTam) {
 # ---------- txt[] (texto) ----------
 
 func txt[] slice1d_txt(txt arr[]. int ini. int fimExcl) {
+    bglh int tamArr: tamanho(arr).
+    sepa (ini < 0 ou ini > tamArr ou fimExcl < 0 ou fimExcl > tamArr) {
+        manda("Erro: limites invalidos em slice1d_txt").
+        bond txt arrErro[0].
+        receba arrErro.
+    }.
     bglh int tam: fimExcl - ini.
     sepa (tam <= 0) {
         bond txt arrVazio[0].
@@ -244,6 +286,10 @@ func txt[] anexar_txt(txt arr[]. txt elem) {
 
 func txt[] inserir_txt(txt arr[]. int pos. txt elem) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos > tam) {
+        manda("Erro: posicao invalida em inserir_txt").
+        receba arr.
+    }.
     bond txt novo[tam + 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -257,6 +303,10 @@ func txt[] inserir_txt(txt arr[]. int pos. txt elem) {
 
 func txt[] remover_txt(txt arr[]. int pos) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos >= tam) {
+        manda("Erro: posicao invalida em remover_txt").
+        receba arr.
+    }.
     bond txt novo[tam - 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -291,6 +341,10 @@ func vazio inverter_txt(txt arr[]) {
 
 func txt[] redim_txt(txt arr[]. int novoTam) {
     bglh int tam: tamanho(arr).
+    sepa (novoTam < 0) {
+        manda("Erro: tamanho invalido em redim_txt").
+        receba arr.
+    }.
     bond txt novo[novoTam].
     bglh int lim: novoTam.
     sepa (tam < lim) { lim : tam. }.
@@ -303,6 +357,12 @@ func txt[] redim_txt(txt arr[]. int novoTam) {
 # ---------- ltr[] (caractere) ----------
 
 func ltr[] slice1d_ltr(ltr arr[]. int ini. int fimExcl) {
+    bglh int tamArr: tamanho(arr).
+    sepa (ini < 0 ou ini > tamArr ou fimExcl < 0 ou fimExcl > tamArr) {
+        manda("Erro: limites invalidos em slice1d_ltr").
+        bond ltr arrErro[0].
+        receba arrErro.
+    }.
     bglh int tam: fimExcl - ini.
     sepa (tam <= 0) {
         bond ltr arrVazio[0].
@@ -343,6 +403,10 @@ func ltr[] anexar_ltr(ltr arr[]. ltr elem) {
 
 func ltr[] inserir_ltr(ltr arr[]. int pos. ltr elem) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos > tam) {
+        manda("Erro: posicao invalida em inserir_ltr").
+        receba arr.
+    }.
     bond ltr novo[tam + 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -356,6 +420,10 @@ func ltr[] inserir_ltr(ltr arr[]. int pos. ltr elem) {
 
 func ltr[] remover_ltr(ltr arr[]. int pos) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos >= tam) {
+        manda("Erro: posicao invalida em remover_ltr").
+        receba arr.
+    }.
     bond ltr novo[tam - 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -390,6 +458,10 @@ func vazio inverter_ltr(ltr arr[]) {
 
 func ltr[] redim_ltr(ltr arr[]. int novoTam) {
     bglh int tam: tamanho(arr).
+    sepa (novoTam < 0) {
+        manda("Erro: tamanho invalido em redim_ltr").
+        receba arr.
+    }.
     bond ltr novo[novoTam].
     bglh int lim: novoTam.
     sepa (tam < lim) { lim : tam. }.
@@ -402,6 +474,12 @@ func ltr[] redim_ltr(ltr arr[]. int novoTam) {
 # ---------- lgc[] (logico) ----------
 
 func lgc[] slice1d_lgc(lgc arr[]. int ini. int fimExcl) {
+    bglh int tamArr: tamanho(arr).
+    sepa (ini < 0 ou ini > tamArr ou fimExcl < 0 ou fimExcl > tamArr) {
+        manda("Erro: limites invalidos em slice1d_lgc").
+        bond lgc arrErro[0].
+        receba arrErro.
+    }.
     bglh int tam: fimExcl - ini.
     sepa (tam <= 0) {
         bond lgc arrVazio[0].
@@ -442,6 +520,10 @@ func lgc[] anexar_lgc(lgc arr[]. lgc elem) {
 
 func lgc[] inserir_lgc(lgc arr[]. int pos. lgc elem) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos > tam) {
+        manda("Erro: posicao invalida em inserir_lgc").
+        receba arr.
+    }.
     bond lgc novo[tam + 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -455,6 +537,10 @@ func lgc[] inserir_lgc(lgc arr[]. int pos. lgc elem) {
 
 func lgc[] remover_lgc(lgc arr[]. int pos) {
     bglh int tam: tamanho(arr).
+    sepa (pos < 0 ou pos >= tam) {
+        manda("Erro: posicao invalida em remover_lgc").
+        receba arr.
+    }.
     bond lgc novo[tam - 1].
     para (bglh int i : 0. i < pos. i : i + 1) {
         novo[i] : arr[i].
@@ -476,6 +562,10 @@ func vazio inverter_lgc(lgc arr[]) {
 
 func lgc[] redim_lgc(lgc arr[]. int novoTam) {
     bglh int tam: tamanho(arr).
+    sepa (novoTam < 0) {
+        manda("Erro: tamanho invalido em redim_lgc").
+        receba arr.
+    }.
     bond lgc novo[novoTam].
     bglh int lim: novoTam.
     sepa (tam < lim) { lim : tam. }.
