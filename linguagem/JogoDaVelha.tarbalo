@@ -1,0 +1,224 @@
+bora
+    # ================================================================
+    # JOGO DA VELHA EM TARBALO
+    # Jogador (X) vs Computador (O) com IA simples
+    # ================================================================
+
+    # --- Tabuleiro 3x3 ---
+    bond ltr tabuleiro[3][3].
+    bglh int jogadas : 0.
+    bglh lgc jogoAtivo : VDD.
+    bglh ltr jogador : 'X'.
+    bglh ltr computador : 'O'.
+    bglh ltr celulaVazia : '-'.
+
+    # --- Inicializar tabuleiro ---
+    func vazio iniciarTabuleiro() {
+        para (bglh int i : 0. i < 3. i : i + 1) {
+            para (bglh int j : 0. j < 3. j : j + 1) {
+                tabuleiro[i][j] : celulaVazia.
+            }.
+        }.
+        jogadas : 0.
+        jogoAtivo : VDD.
+    }.
+
+    # --- Exibir tabuleiro ---
+    func vazio exibirTabuleiro() {
+        manda("").
+        manda("  1 2 3").
+        para (bglh int i : 0. i < 3. i : i + 1) {
+            bglh txt linha : "" & (i + 1) & " ".
+            para (bglh int j : 0. j < 3. j : j + 1) {
+                linha : linha & tabuleiro[i][j] & " ".
+            }.
+            manda(linha).
+        }.
+        manda("").
+    }.
+
+    # --- Verificar se alguem ganhou ---
+    # Retorna: '-' = ninguem, 'X' = jogador, 'O' = computador
+    func ltr verificarVencedor() {
+        # Linhas
+        para (bglh int i : 0. i < 3. i : i + 1) {
+            sepa (tabuleiro[i][0] != celulaVazia) {
+                sepa (tabuleiro[i][0] = tabuleiro[i][1]) {
+                    sepa (tabuleiro[i][1] = tabuleiro[i][2]) {
+                        receba tabuleiro[i][0].
+                    }.
+                }.
+            }.
+        }.
+
+        # Colunas
+        para (bglh int j : 0. j < 3. j : j + 1) {
+            sepa (tabuleiro[0][j] != celulaVazia) {
+                sepa (tabuleiro[0][j] = tabuleiro[1][j]) {
+                    sepa (tabuleiro[1][j] = tabuleiro[2][j]) {
+                        receba tabuleiro[0][j].
+                    }.
+                }.
+            }.
+        }.
+
+        # Diagonal principal
+        sepa (tabuleiro[0][0] != celulaVazia) {
+            sepa (tabuleiro[0][0] = tabuleiro[1][1]) {
+                sepa (tabuleiro[1][1] = tabuleiro[2][2]) {
+                    receba tabuleiro[0][0].
+                }.
+            }.
+        }.
+
+        # Diagonal secundaria
+        sepa (tabuleiro[0][2] != celulaVazia) {
+            sepa (tabuleiro[0][2] = tabuleiro[1][1]) {
+                sepa (tabuleiro[1][1] = tabuleiro[2][0]) {
+                    receba tabuleiro[0][2].
+                }.
+            }.
+        }.
+
+        receba celulaVazia.
+    }.
+
+    # --- Verificar se posicao esta livre ---
+    func lgc posicaoLivre(int lin. int col) {
+        receba tabuleiro[lin][col] = celulaVazia.
+    }.
+
+    # --- Jogada do jogador ---
+    func lgc jogarJogador(int lin. int col) {
+        sepa (lin < 0) {
+            receba FAKE.
+        }.
+        sepa (lin > 2) {
+            receba FAKE.
+        }.
+        sepa (col < 0) {
+            receba FAKE.
+        }.
+        sepa (col > 2) {
+            receba FAKE.
+        }.
+        sepa (nao posicaoLivre(lin ; col)) {
+            manda("Posicao ocupada! Tente novamente.").
+            receba FAKE.
+        }.
+        tabuleiro[lin][col] : jogador.
+        jogadas ++.
+        receba VDD.
+    }.
+
+    # --- IA do computador: tenta ganhar, depois bloquear, depois centro ---
+    func vazio jogarComputador() {
+        # 1. Tentar ganhar (preencher linha/col/diagonal com 2 'O')
+        para (bglh int i : 0. i < 3. i : i + 1) {
+            para (bglh int j : 0. j < 3. j : j + 1) {
+                sepa (posicaoLivre(i ; j)) {
+                    tabuleiro[i][j] : computador.
+                    sepa (verificarVencedor() = computador) {
+                        jogadas ++.
+                        manda("Computador jogou em (" & (i + 1) & ", " & (j + 1) & ")").
+                        receba.
+                    }.
+                    tabuleiro[i][j] : celulaVazia.
+                }.
+            }.
+        }.
+
+        # 2. Bloquear jogador (preencher onde jogador tem 2)
+        para (bglh int i : 0. i < 3. i : i + 1) {
+            para (bglh int j : 0. j < 3. j : j + 1) {
+                sepa (posicaoLivre(i ; j)) {
+                    tabuleiro[i][j] : jogador.
+                    sepa (verificarVencedor() = jogador) {
+                        tabuleiro[i][j] : computador.
+                        jogadas ++.
+                        manda("Computador jogou em (" & (i + 1) & ", " & (j + 1) & ")").
+                        receba.
+                    }.
+                    tabuleiro[i][j] : celulaVazia.
+                }.
+            }.
+        }.
+
+        # 3. Centro livre
+        sepa (posicaoLivre(1 ; 1)) {
+            tabuleiro[1][1] : computador.
+            jogadas ++.
+            manda("Computador jogou no centro (2, 2)").
+            receba.
+        }.
+
+        # 4. Qualquer posicao livre
+        para (bglh int i : 0. i < 3. i : i + 1) {
+            para (bglh int j : 0. j < 3. j : j + 1) {
+                sepa (posicaoLivre(i ; j)) {
+                    tabuleiro[i][j] : computador.
+                    jogadas ++.
+                    manda("Computador jogou em (" & (i + 1) & ", " & (j + 1) & ")").
+                    receba.
+                }.
+            }.
+        }.
+    }.
+
+    # --- Loop principal do jogo ---
+    iniciarTabuleiro().
+    manda("============================").
+    manda("   JOGO DA VELHA TARBALO   ").
+    manda("============================").
+    manda("Voce e X, Computador e O").
+    manda("Digite linha e coluna (1-3)").
+
+    exibirTabuleiro().
+
+    enquanto (jogoAtivo) {
+        # Vez do jogador
+        bglh int linJog.
+        bglh int colJog.
+        bglh lgc jogadaValida : FAKE.
+
+        enquanto (nao jogadaValida) {
+            manda("Sua vez! Digite linha:").
+            espia(linJog).
+            manda("Digite coluna:").
+            espia(colJog).
+            jogadaValida : jogarJogador(linJog - 1 ; colJog - 1).
+        }.
+
+        exibirTabuleiro().
+
+        # Verificar se jogador ganhou
+        bglh ltr venc : verificarVencedor().
+        sepa (venc = jogador) {
+            manda("PARABENS! Voce venceu!").
+            jogoAtivo : FAKE.
+        } vish {
+            sepa (jogadas >= 9) {
+                manda("EMPATE! O tabuleiro ficou cheio.").
+                jogoAtivo : FAKE.
+            } vish {
+                # Vez do computador
+                manda("Vez do computador...").
+                jogarComputador().
+                exibirTabuleiro().
+
+                venc : verificarVencedor().
+                sepa (venc = computador) {
+                    manda("O computador venceu! Tente novamente.").
+                    jogoAtivo : FAKE.
+                } vish {
+                    sepa (jogadas >= 9) {
+                        manda("EMPATE! O tabuleiro ficou cheio.").
+                        jogoAtivo : FAKE.
+                    }.
+                }.
+            }.
+        }.
+    }.
+
+    manda("Fim do jogo!").
+flw.

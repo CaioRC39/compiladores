@@ -9,6 +9,9 @@ public class TabelaSimbolos {
     // Mapa global para funções sobrecarregadas (chave = nome, valor = lista de funções)
     private Map<String, List<Simbolo>> funcoes = new HashMap<>();
 
+    // Memória de todos os símbolos já registrados (para consulta pelo transpilador após fechamento de escopos)
+    private Map<String, Simbolo> memoria = new LinkedHashMap<>();
+
     public TabelaSimbolos() {
         pilhaEscopos = new ArrayDeque<>();
         // Escopo global
@@ -38,6 +41,13 @@ public class TabelaSimbolos {
     // Método adicionar modificado para suportar sobrecarga de funções
     public boolean adicionar(Simbolo simbolo) {
         Map<String, Simbolo> atual = escopoAtual();
+        // Sempre registrar na memória (para consulta do transpilador)
+        // Para campos de struct, usar chave composta para evitar sobrescrita
+        String memoriaKey = simbolo.getNome();
+        if (simbolo.getCategoria() == Simbolo.Categoria.REGS_CAMPO && simbolo.getNomeRegs() != null) {
+            memoriaKey = simbolo.getNomeRegs() + "." + simbolo.getNome();
+        }
+        memoria.put(memoriaKey, simbolo);
         if (atual.containsKey(simbolo.getNome())) {
             Simbolo existente = atual.get(simbolo.getNome());
             // Se ambos forem funções, permite sobrecarga
@@ -92,19 +102,60 @@ public class TabelaSimbolos {
         if (tipoParam.equals(tipoArg)) return true;
         // int pode ser passado para qbd (decimal)
         if (tipoParam.equals("qbd") && tipoArg.equals("int")) return true;
+        // ltr pode ser passado para int (char é numericamente compatível)
+        if (tipoParam.equals("int") && tipoArg.equals("ltr")) return true;
         return false;
     }
 
-    // Buscar símbolo em todos os escopos, do mais interno ao global
+    // Buscar símbolo em todos os escopos ativos (SEM fallback de memória — para análise semântica)
     public Simbolo buscar(String nome) {
         for (Map<String, Simbolo> escopo : pilhaEscopos) {
             Simbolo s = escopo.get(nome);
             if (s != null) return s;
         }
-        return null; // não encontrado
+        return null;
     }
 
-    // Verificar se existe em algum escopo
+    // Buscar símbolo com fallback na memória (para transpilador — funciona após fechamento de escopos)
+    public Simbolo buscarComMemoria(String nome) {
+        Simbolo s = buscar(nome);
+        if (s != null) return s;
+        return memoria.get(nome);
+    }
+
+    // Buscar campo de struct por nome do struct e nome do campo
+    public Simbolo buscarCampo(String nomeStruct, String nomeCampo) {
+        // Buscar em todos os escopos ativos
+        for (Map<String, Simbolo> escopo : pilhaEscopos) {
+            Simbolo s = escopo.get(nomeCampo);
+            if (s != null && s.getCategoria() == Simbolo.Categoria.REGS_CAMPO
+                && s.getNomeRegs().equals(nomeStruct)) {
+                return s;
+            }
+        }
+        // Fallback na memória (chave composta: nomeStruct.nomeCampo)
+        String memoriaKey = nomeStruct + "." + nomeCampo;
+        Simbolo s = memoria.get(memoriaKey);
+        if (s != null && s.getCategoria() == Simbolo.Categoria.REGS_CAMPO
+            && s.getNomeRegs().equals(nomeStruct)) {
+            return s;
+        }
+        return null;
+    }
+
+    // Retornar todos os símbolos (escopos ativos + memória, sem duplicatas)
+    public List<Simbolo> buscarTodos() {
+        Map<String, Simbolo> todos = new LinkedHashMap<>();
+        for (Map<String, Simbolo> escopo : pilhaEscopos) {
+            todos.putAll(escopo);
+        }
+        for (Map.Entry<String, Simbolo> entry : memoria.entrySet()) {
+            todos.putIfAbsent(entry.getKey(), entry.getValue());
+        }
+        return new ArrayList<>(todos.values());
+    }
+
+    // Verificar se existe em algum escopo ativo (SEM fallback — para análise semântica)
     public boolean existe(String nome) {
         return buscar(nome) != null;
     }
@@ -114,9 +165,15 @@ public class TabelaSimbolos {
         return escopoAtual().containsKey(nome);
     }
 
-    // Obter tipo de um símbolo (se existir)
+    // Obter tipo de um símbolo nos escopos ativos (SEM fallback — para análise semântica)
     public String obterTipo(String nome) {
         Simbolo s = buscar(nome);
+        return s != null ? s.getTipo() : null;
+    }
+
+    // Obter tipo com fallback na memória (para transpilador)
+    public String obterTipoComMemoria(String nome) {
+        Simbolo s = buscarComMemoria(nome);
         return s != null ? s.getTipo() : null;
     }
 }

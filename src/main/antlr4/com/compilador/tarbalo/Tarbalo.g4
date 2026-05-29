@@ -27,6 +27,8 @@ declaracao:
     declaracaoVariavel
     | declaracaoVetor
     | declaracaoFuncao
+    | declaracaoEnum
+    | declaracaoStruct
 ;
 
 // -----------------------------------------------------------------------
@@ -48,6 +50,7 @@ tipoVariavel:
     | TEXTO_TIPO
     | CARACTERE
     | BOOLEANO_TIPO
+    | ID    // permite nomes de cnjt como tipo (ex: Cor, Dia)
 ;
 
 tipoComposto:
@@ -74,9 +77,14 @@ declaracaoVetor:
 inicializacaoVetor:
     ABRECOLCHETE
         (
-            expressao (PONTIVIRGULA expressao)*
+            elemVetor (PONTIVIRGULA elemVetor)*
         )?
     FECHACOLCHETE
+;
+
+elemVetor:
+    inicializacaoVetor
+    | expressao
 ;
 
 valorAtribuicao:
@@ -103,6 +111,30 @@ parametros:
     parametro (PONTO parametro)*
 ;
 
+// -----------------------------------------------------------------------
+// Conjuntos (enums)
+// -----------------------------------------------------------------------
+
+declaracaoEnum:
+    ENUM tipoVariavel ID ABRECHAVE (cnjtElem PONTO)+ FECHACHAVE PONTO
+;
+
+cnjtElem:
+    ID (ATRIBUICAO expressao)?
+;
+
+declaracaoStruct:
+    STRUCT ID ABRECHAVE (declaracaoVariavel)+ FECHACHAVE PONTO
+;
+
+chamadaConstrutor:
+    NEW ID ABREPARENTE argumentos? FECHAPARENTE
+;
+
+acessoElem:
+    ID (dimensao)* (DOISPONTOS ID)+
+;
+
 parametro:
     tipoVariavel variavel
 ;
@@ -126,6 +158,8 @@ comando:
     | cmdPara
     | cmdParaCada
     | cmdBloco PONTO
+    | cmdTente
+    | cmdEscolha
     | retorno
     | pare
     | continuar
@@ -150,7 +184,7 @@ diretiva:
 leitura:
     LEIA
     ABREPARENTE
-        variavel
+        (acessoElem | variavel)
     FECHAPARENTE
     PONTO
 ;
@@ -168,7 +202,7 @@ escrita:
 // -----------------------------------------------------------------------
 
 atribuicao:
-    variavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
+    (acessoElem | variavel) (operadorAtribuicaoComposta | ATRIBUICAO) valorAtribuicao
     PONTO
 ;
 
@@ -251,7 +285,7 @@ inicializacaoPara:
 ;
 
 atribuicaoPara:
-    variavel (ATRIBUICAO | operadorAtribuicaoComposta) valorAtribuicao
+    variavel (operadorAtribuicaoComposta | ATRIBUICAO) valorAtribuicao
 ;
 
 atualizacaoPara:
@@ -269,6 +303,35 @@ cmdParaCada:
         bloco
     FECHACHAVE
     PONTO
+;
+
+cmdTente:
+    TENTE ABRECHAVE bloco FECHACHAVE
+    cmdPegue?
+    PONTO
+;
+
+cmdPegue:
+    PEGUE ABREPARENTE tipoVariavel ID FECHAPARENTE ABRECHAVE bloco FECHACHAVE
+;
+
+// -----------------------------------------------------------------------
+// Escolha (switch/case)
+// -----------------------------------------------------------------------
+
+cmdEscolha:
+    ESCOLHA ABREPARENTE expressao FECHAPARENTE ABRECHAVE
+        (blocoCaso)+
+        blocoPadrao?
+    FECHACHAVE PONTO
+;
+
+blocoCaso:
+    CASO ABREPARENTE expressao FECHAPARENTE ATRIBUICAO bloco
+;
+
+blocoPadrao:
+    PADRAO ATRIBUICAO bloco
 ;
 
 // -----------------------------------------------------------------------
@@ -296,38 +359,38 @@ continuar:
 
 // ---------- 1. Operador OU ----------
 expressao:
-    expressaoXor (OU expressaoXor)*
+    expressaoConcatenacao (OU expressaoConcatenacao)*
 ;
 
-// ---------- 2. Operador XOR ----------
+// ---------- 2. Concatenação (abaixo de OU) ----------
+expressaoConcatenacao:
+    expressaoXor (CONCAT expressaoXor)*
+;
+
+// ---------- 3. Operador XOR ----------
 expressaoXor:
     expressaoE (XOR expressaoE)*
 ;
 
-// ---------- 3. Operador E ----------
+// ---------- 4. Operador E ----------
 expressaoE:
     expressaoNegacao (E expressaoNegacao)*
 ;
 
-// ---------- 4. Negação lógica ----------
+// ---------- 5. Negação lógica ----------
 expressaoNegacao:
     NAO expressaoNegacao
     | expressaoRelacional
 ;
 
-// ---------- 5. Operadores relacionais ----------
+// ---------- 6. Operadores relacionais ----------
 expressaoRelacional:
     expressaoAditiva (operadorRelacional expressaoAditiva)?
 ;
 
-// ---------- 6. Adição / subtração ----------
+// ---------- 7. Adição / subtração ----------
 expressaoAditiva:
-    expressaoConcatenacao ((MAIS | MENOS) expressaoConcatenacao)*
-;
-
-// ---------- 7. Concatenação ----------
-expressaoConcatenacao:
-    expressaoMultiplicativa (CONCAT expressaoMultiplicativa)*
+    expressaoMultiplicativa ((MAIS | MENOS) expressaoMultiplicativa)*
 ;
 
 // ---------- 8. Multiplicação / divisão ----------
@@ -343,8 +406,10 @@ operando:
     | CHAR
     | VERDADEIRO
     | FALSO
+    | acessoElem
     | variavel
     | chamadaFuncao
+    | chamadaConstrutor
     | ABREPARENTE expressao FECHAPARENTE
     | MENOS operando  // unário negativo
 ;
@@ -407,25 +472,33 @@ ESCREVA         : 'manda';
 SE              : 'sepa';
 SENAO           : 'vish';
 ENQUANTO        : 'enquanto';
-FACA            : 'faca';
+FACA            : 'vamo';
 PARA            : 'para';
-PARACADA        : 'pancada';
+PARACADA        : 'cada';
 EM              : 'em';
-PARE            : 'morre';
+PARE            : 'morreu';
 CONTINUAR       : 'dale';
 VERDADEIRO      : 'VDD';
 FALSO           : 'FAKE';
 PACOTE          : 'usar';
+ENUM            : 'cnjt';
+TENTE           : 'sonha';
+PEGUE           : 'deuruim';
+ESCOLHA         : 'escolha';
+CASO            : 'caso';
+PADRAO          : 'padrao';
+STRUCT          : 'regs';
+NEW             : 'new';
 
 // -----------------------------------------------------------------------
 // B. Operadores
 // -----------------------------------------------------------------------
 
-SOMA_ATRIBUICAO      : '+:';
-SUBTRACAO_ATRIBUICAO : '-:';
-MULT_ATRIBUICAO      : '*:';
-DIV_ATRIBUICAO       : '/:';
-MOD_ATRIBUICAO       : '%:';
+SOMA_ATRIBUICAO      : ':+';
+SUBTRACAO_ATRIBUICAO : ':-';
+MULT_ATRIBUICAO      : ':*';
+DIV_ATRIBUICAO       : ':/';
+MOD_ATRIBUICAO       : ':%';
 INCREMENTO           : '++';
 DECREMENTO           : '--';
 PONTOPONTO           : '..';
@@ -436,6 +509,7 @@ DIVINT               : '//';
 DIV                  : '/';
 MOD                  : '%';
 CONCAT               : '&';
+DOISPONTOS           : '::';
 ATRIBUICAO           : ':';
 MENORIGUAL           : '<=';
 MAIORIGUAL           : '>=';

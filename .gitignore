@@ -8,8 +8,7 @@ target/
 *.class
 
 # Generated output
-ProgramaSaida.java
-ProgramaSaida.class
+output/
 
 # IDE
 .idea/

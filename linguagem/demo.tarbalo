@@ -1,0 +1,359 @@
+bora
+    # ================================================================
+    # DEMONSTRACAO COMPLETA DO TARBALO
+    # Todos os recursos da linguagem em um unico arquivo
+    # ================================================================
+
+    # ----------------------------------------------------------------
+    # 1. VARIAVEIS E TIPOS
+    # ----------------------------------------------------------------
+    manda("=== 1. Variaveis e Tipos ===").
+
+    bglh int inteiro : 42.
+    bglh qbd decimal : 3,14.
+    bglh txt texto : "Ola, Tarbalo!".
+    bglh ltr caractere : 'A'.
+    bglh lgc verdadeiro : VDD.
+    bglh lgc falso : FAKE.
+    bglh int semValor.
+
+    manda("int: " & inteiro).
+    manda("qbd: " & decimal).
+    manda("txt: " & texto).
+    manda("ltr: " & caractere).
+    manda("lgc VDD: " & verdadeiro).
+    manda("lgc FAKE: " & falso).
+
+    # ----------------------------------------------------------------
+    # 2. OPERADORES ARITMETICOS
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 2. Operadores Aritmeticos ===").
+
+    bglh int a : 10.
+    bglh int b : 3.
+
+    manda("a + b = " & (a + b)).
+    manda("a - b = " & (a - b)).
+    manda("a * b = " & (a * b)).
+    manda("a / b = " & (a / b)).
+    manda("a // b = " & (a // b)).
+    manda("a % b = " & (a % b)).
+
+    # ----------------------------------------------------------------
+    # 3. OPERADORES RELACIONAIS
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 3. Operadores Relacionais ===").
+
+    manda("10 > 3  = " & (10 > 3)).
+    manda("10 < 3  = " & (10 < 3)).
+    manda("10 >= 10 = " & (10 >= 10)).
+    manda("10 <= 9  = " & (10 <= 9)).
+    manda("10 = 10  = " & (10 = 10)).
+    manda("10 != 10 = " & (10 != 10)).
+
+    # ----------------------------------------------------------------
+    # 4. OPERADORES LOGICOS
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 4. Operadores Logicos ===").
+
+    bglh lgc x : VDD.
+    bglh lgc y : FAKE.
+
+    manda("VDD e FAKE  = " & (x e y)).
+    manda("VDD ou FAKE = " & (x ou y)).
+    manda("VDD xor FAKE = " & (x xor y)).
+    manda("nao VDD     = " & (nao x)).
+
+    # ----------------------------------------------------------------
+    # 5. CONCATENACAO
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 5. Concatenacao ===").
+
+    bglh txt nomeExemplo : "Maria".
+    bglh int idadeExemplo : 25.
+
+    manda("Nome: " & nomeExemplo & ", Idade: " & idadeExemplo).
+
+    # ----------------------------------------------------------------
+    # 6. ATRIBUICAO COMPOSTA
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 6. Atribuicao Composta ===").
+
+    bglh int val : 100.
+    manda("Inicial: " & val).
+
+    val :+ 10.
+    manda("val :+ 10 -> " & val).
+
+    val :- 5.
+    manda("val :- 5  -> " & val).
+
+    val :* 2.
+    manda("val :* 2  -> " & val).
+
+    val :/ 4.
+    manda("val :/ 4  -> " & val).
+
+    val :% 7.
+    manda("val :% 7  -> " & val).
+
+    # ----------------------------------------------------------------
+    # 7. INCREMENTO E DECREMENTO
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 7. Incremento e Decremento ===").
+
+    bglh int cont : 0.
+    cont ++.
+    manda("apos ++: " & cont).
+    cont ++.
+    manda("apos ++: " & cont).
+    cont --.
+    manda("apos --: " & cont).
+
+    # ----------------------------------------------------------------
+    # 8. VETORES
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 8. Vetores ===").
+
+    # Vetor 1D com inicializacao
+    bond int nums[3] : [10; 20; 30].
+    manda("nums[0] = " & nums[0]).
+    manda("nums[2] = " & nums[2]).
+
+    # Vetor de texto
+    bond txt frutas[3] : ["maca"; "banana"; "laranja"].
+    manda("frutas[1] = " & frutas[1]).
+
+    # Modificacao de elemento
+    nums[1] : 99.
+    manda("nums[1] modificado = " & nums[1]).
+
+    # Matriz 2D
+    manda("").
+    manda("--- Matriz 2D ---").
+    bond int mat[2][3] : [[1; 2; 3]; [4; 5; 6]].
+    manda("mat[0][0] = " & mat[0][0]).
+    manda("mat[1][2] = " & mat[1][2]).
+
+    # ----------------------------------------------------------------
+    # 9. FUNCOES
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 9. Funcoes ===").
+
+    # Funcao com retorno
+    func int dobro(int n) {
+        receba n * 2.
+    }.
+
+    manda("dobro(7) = " & dobro(7)).
+
+    # Funcao void
+    func vazio mostrar(txt msg) {
+        manda("[void] " & msg).
+    }.
+
+    mostrar("Teste de funcao void").
+
+    # Funcao com multiplos parametros
+    func txt formatar(txt nome. int anos) {
+        receba nome & " tem " & anos & " anos".
+    }.
+
+    manda(formatar("Joao"; 30)).
+
+    # Funcao sem parametros
+    func int aleatorio() {
+        receba 42.
+    }.
+
+    manda("aleatorio() = " & aleatorio()).
+
+    # ----------------------------------------------------------------
+    # 10. CONDICIONAL: sepa / vish
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 10. Condicional sepa/vish ===").
+
+    bglh int nota : 7.
+
+    sepa (nota >= 7) {
+        manda("Aprovado").
+    } vish {
+        manda("Reprovado").
+    }.
+
+    # ----------------------------------------------------------------
+    # 11. LACO: enquanto (while)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 11. Laco enquanto ===").
+
+    bglh int i : 0.
+
+    enquanto (i < 3) {
+        manda("i = " & i).
+        i ++.
+    }.
+
+    # ----------------------------------------------------------------
+    # 12. LACO: vamo/enquanto (do-while)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 12. Laco vamo/enquanto ===").
+
+    bglh int j : 0.
+
+    vamo {
+        manda("j = " & j).
+        j ++.
+    } enquanto (j < 3).
+
+    # ----------------------------------------------------------------
+    # 13. LACO: para (for)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 13. Laco para ===").
+
+    para (bglh int k : 0. k < 5. k ++) {
+        manda("k = " & k).
+    }.
+
+    # ----------------------------------------------------------------
+    # 14. LACO: cada em (for-each)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 14. Laco cada em ===").
+
+    bond txt cores[3] : ["vermelho"; "verde"; "azul"].
+
+    cada (bglh txt cor em cores) {
+        manda("cor: " & cor).
+    }.
+
+    # ----------------------------------------------------------------
+    # 15. BREAK E CONTINUE
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 15. Break (morreu) e Continue (dale) ===").
+
+    para (bglh int m : 0. m < 10. m ++) {
+        sepa (m = 3) {
+            manda("pulando m=3 com dale").
+            dale.
+        }.
+        sepa (m = 6) {
+            manda("parando em m=6 com morreu").
+            morreu.
+        }.
+        manda("m = " & m).
+    }.
+
+    # ----------------------------------------------------------------
+    # 16. ESCOLHA (switch/case)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 16. Escolha (switch/case) ===").
+
+    bglh int dia : 3.
+
+    escolha (dia) {
+        caso (1):
+            manda("Segunda").
+        caso (2):
+            manda("Terca").
+        caso (3):
+            manda("Quarta").
+        caso (4):
+            manda("Quinta").
+        caso (5):
+            manda("Sexta").
+        padrao:
+            manda("Fim de semana").
+    }.
+
+    # ----------------------------------------------------------------
+    # 17. ENUMS (cnjt)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 17. Enums (cnjt) ===").
+
+    cnjt int Cor {
+        Vermelho : 0.
+        Verde : 1.
+        Azul : 2.
+    }.
+
+    bglh Cor favorita : Cor::Verde.
+    manda("Cor favorita (valor): " & favorita).
+
+    escolha (favorita) {
+        caso (Cor::Vermelho):
+            manda("Vermelho").
+        caso (Cor::Verde):
+            manda("Verde").
+        caso (Cor::Azul):
+            manda("Azul").
+        padrao:
+            manda("Desconhecida").
+    }.
+
+    # ----------------------------------------------------------------
+    # 18. REGISTROS (regs)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 18. Registros (regs) ===").
+
+    regs Endereco {
+        bglh txt rua.
+        bglh int numero.
+    }.
+
+    regs Pessoa {
+        bglh txt nome.
+        bglh int idade.
+        bglh Endereco endereco.
+    }.
+
+    bglh Pessoa p : new Pessoa("Maria"; 25; new Endereco("Rua A"; 123)).
+    manda("p::nome = " & p::nome).
+    manda("p::idade = " & p::idade).
+    manda("p::endereco::rua = " & p::endereco::rua).
+    manda("p::endereco::numero = " & p::endereco::numero).
+
+    # Modificando campo
+    p::idade : 26.
+    manda("p::idade apos aniversario = " & p::idade).
+
+    # ----------------------------------------------------------------
+    # 19. TRY/CATCH (sonha/deuruim)
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 19. Try/Catch (sonha/deuruim) ===").
+
+    sonha {
+        bglh int resultado : 10 / 0.
+    } deuruim (Erro err) {
+        manda("Erro capturado: " & err::mensagem).
+    }.
+
+    # ----------------------------------------------------------------
+    # 20. BLOCO ANINHADO
+    # ----------------------------------------------------------------
+    manda("").
+    manda("=== 20. Blocos Aninhados ===").
+
+    {
+        bglh int escopo : 100.
+        manda("escopo interno: " & escopo).
+    }.
+
+    manda("Fim da demo!").
+flw.

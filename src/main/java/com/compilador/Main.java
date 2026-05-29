@@ -4,13 +4,15 @@ import com.compilador.tarbalo.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         // 1. Parse do programa principal
-        TarbaloParser.ProgramaContext userTree = parseFile("tst.tarbalo");
+        String inputFile = args.length > 0 ? args[0] : "linguagem/demo.tarbalo";
+        TarbaloParser.ProgramaContext userTree = parseFile(inputFile);
 
         // 2. Extrair e processar diretivas de inclusão (parse UMA vez por arquivo)
         List<TarbaloParser.DiretivaContext> diretivas = userTree.diretiva();
@@ -53,8 +55,10 @@ public class Main {
         String codigoJava = transpilador.transpilar(todosBlocos);
 
         if (codigoJava != null) {
-            Files.writeString(Path.of("ProgramaSaida.java"), codigoJava);
-            System.out.println("Transpilação concluída! Código gerado em ProgramaSaida.java");
+            Path outputDir = Path.of("output");
+            Files.createDirectories(outputDir);
+            Files.writeString(outputDir.resolve("ProgramaSaida.java"), codigoJava, java.nio.charset.StandardCharsets.UTF_8);
+            System.out.println("Transpilação concluída! Código gerado em output/ProgramaSaida.java");
         }
     }
 
@@ -66,6 +70,14 @@ public class Main {
     private static TarbaloParser.ProgramaContext parse(String source) {
         CharStream input = CharStreams.fromString(source);
         TarbaloLexer lexer = new TarbaloLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
+                                    int line, int charPositionInLine, String msg, RecognitionException e) {
+                throw new RuntimeException("Erro léxico na linha " + line + ":" + charPositionInLine + " - " + msg);
+            }
+        });
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TarbaloParser parser = new TarbaloParser(tokens);
         parser.removeErrorListeners();
@@ -139,5 +151,15 @@ public class Main {
         tabela.adicionar(new Simbolo("slice1d", "txt[]", List.of("txt[]", "int", "int"), false));
         tabela.adicionar(new Simbolo("slice1d", "ltr[]", List.of("ltr[]", "int", "int"), false));
         tabela.adicionar(new Simbolo("slice1d", "lgc[]", List.of("lgc[]", "int", "int"), false));
+
+        // slice2d
+        tabela.adicionar(new Simbolo("slice2d", "int[][]", List.of("int[][]", "int", "int", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice2d", "qbd[][]", List.of("qbd[][]", "int", "int", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice2d", "txt[][]", List.of("txt[][]", "int", "int", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice2d", "ltr[][]", List.of("ltr[][]", "int", "int", "int", "int"), false));
+        tabela.adicionar(new Simbolo("slice2d", "lgc[][]", List.of("lgc[][]", "int", "int", "int", "int"), false));
+
+        // Erro (built-in para sonha/vish)
+        tabela.adicionar(new Simbolo("Erro", "Erro"));
     }
 }

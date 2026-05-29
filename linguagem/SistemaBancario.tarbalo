@@ -1,0 +1,281 @@
+bora
+    # ================================================================
+    # SISTEMA BANCARIO EM TARBALO
+    # Simulador de contas com operacoes de deposito, saque e extrato
+    # ================================================================
+
+    # --- Enum de tipo de operacao ---
+    cnjt int TipoOp { DEPOSITO : 1. SAQUE : 2. }.
+
+    # --- Constantes do sistema ---
+    bglh int MAX_CONTAS : 10.
+    bglh qbd TAXA_MANUTENCAO : 5,50.
+
+    # --- Dados das contas (paralelos) ---
+    bond int contas_ids[10].
+    bond txt contas_nomes[10].
+    bond qbd contas_saldos[10].
+    bond lgc contas_ativas[10].
+    bglh int totalContas : 0.
+
+    # --- Extrato: historico paralelo ---
+    bond int hist_conta[100].
+    bond int hist_tipo[100].
+    bond qbd hist_valor[100].
+    bglh int totalHist : 0.
+
+    # ---------------------------------------------------------------
+    # Funcoes auxiliares
+    # ---------------------------------------------------------------
+
+    func int buscarConta(int id) {
+        para (bglh int i : 0. i < totalContas. i : i + 1) {
+            sepa (contas_ids[i] = id) {
+                receba i.
+            }.
+        }.
+        receba -1.
+    }.
+
+    func vazio registrarOperacao(int idxConta. int tipo. qbd valor) {
+        sepa (totalHist < 100) {
+            hist_conta[totalHist] : contas_ids[idxConta].
+            hist_tipo[totalHist] : tipo.
+            hist_valor[totalHist] : valor.
+            totalHist ++.
+        }.
+    }.
+
+    func lgc criarConta(int id. txt nome) {
+        sepa (totalContas >= MAX_CONTAS) {
+            manda("Limite de contas atingido!").
+            receba FAKE.
+        }.
+        sepa (buscarConta(id) != -1) {
+            manda("Ja existe conta com esse ID!").
+            receba FAKE.
+        }.
+        contas_ids[totalContas] : id.
+        contas_nomes[totalContas] : nome.
+        contas_saldos[totalContas] : 0.
+        contas_ativas[totalContas] : VDD.
+        totalContas ++.
+        manda("Conta #" & id & " criada para " & nome & "!").
+        receba VDD.
+    }.
+
+    func lgc depositar(int id. qbd valor) {
+        bglh int idx : buscarConta(id).
+        sepa (idx = -1) {
+            manda("Conta nao encontrada!").
+            receba FAKE.
+        }.
+        sepa (valor <= 0) {
+            manda("Valor invalido para deposito!").
+            receba FAKE.
+        }.
+        contas_saldos[idx] : contas_saldos[idx] + valor.
+        registrarOperacao(idx ; TipoOp::DEPOSITO ; valor).
+        manda("Deposito de R$ " & valor & " realizado na conta #" & id).
+        receba VDD.
+    }.
+
+    func lgc sacar(int id. qbd valor) {
+        bglh int idx : buscarConta(id).
+        sepa (idx = -1) {
+            manda("Conta nao encontrada!").
+            receba FAKE.
+        }.
+        sepa (valor <= 0) {
+            manda("Valor invalido para saque!").
+            receba FAKE.
+        }.
+        sepa (contas_saldos[idx] < valor) {
+            manda("Saldo insuficiente! Saldo atual: R$ " & contas_saldos[idx]).
+            receba FAKE.
+        }.
+        contas_saldos[idx] : contas_saldos[idx] - valor.
+        registrarOperacao(idx ; TipoOp::SAQUE ; valor).
+        manda("Saque de R$ " & valor & " realizado na conta #" & id).
+        receba VDD.
+    }.
+
+    func vazio verSaldo(int id) {
+        bglh int idx : buscarConta(id).
+        sepa (idx = -1) {
+            manda("Conta nao encontrada!").
+        } vish {
+            manda("=== Saldo da Conta #" & id & " ===").
+            manda("Titular: " & contas_nomes[idx]).
+            manda("Saldo: R$ " & contas_saldos[idx]).
+        }.
+    }.
+
+    func vazio verExtrato(int id) {
+        bglh int idx : buscarConta(id).
+        sepa (idx = -1) {
+            manda("Conta nao encontrada!").
+        } vish {
+            manda("=== Extrato da Conta #" & id & " ===").
+            bglh int encontrados : 0.
+            para (bglh int i : 0. i < totalHist. i : i + 1) {
+                sepa (hist_conta[i] = id) {
+                    bglh txt tipoStr : "".
+                    sepa (hist_tipo[i] = TipoOp::DEPOSITO) {
+                        tipoStr : "DEPOSITO".
+                    } vish {
+                        tipoStr : "SAQUE".
+                    }.
+                    manda("  " & tipoStr & " - R$ " & hist_valor[i]).
+                    encontrados ++.
+                }.
+            }.
+            sepa (encontrados = 0) {
+                manda("  Nenhuma operacao registrada.").
+            }.
+        }.
+    }.
+
+    func vazio listarContas() {
+        manda("=== Contas Cadastradas ===").
+        para (bglh int i : 0. i < totalContas. i : i + 1) {
+            manda("  #" & contas_ids[i] & " - " & contas_nomes[i] & " | Saldo: R$ " & contas_saldos[i]).
+        }.
+        sepa (totalContas = 0) {
+            manda("  Nenhuma conta cadastrada.").
+        }.
+    }.
+
+    func vazio aplicarTaxa() {
+        para (bglh int i : 0. i < totalContas. i : i + 1) {
+            sepa (contas_ativas[i]) {
+                contas_saldos[i] : contas_saldos[i] - TAXA_MANUTENCAO.
+                manda("Taxa de R$ " & TAXA_MANUTENCAO & " cobrada da conta #" & contas_ids[i]).
+            }.
+        }.
+    }.
+
+    func vazio transferir(int origem. int destino. qbd valor) {
+        bglh int idxO : buscarConta(origem).
+        bglh int idxD : buscarConta(destino).
+        sepa (idxO = -1) {
+            manda("Conta de origem nao encontrada!").
+        } vish {
+            sepa (idxD = -1) {
+                manda("Conta de destino nao encontrada!").
+            } vish {
+                sepa (contas_saldos[idxO] < valor) {
+                    manda("Saldo insuficiente para transferencia!").
+                } vish {
+                    contas_saldos[idxO] : contas_saldos[idxO] - valor.
+                    contas_saldos[idxD] : contas_saldos[idxD] + valor.
+                    registrarOperacao(idxO ; TipoOp::SAQUE ; valor).
+                    registrarOperacao(idxD ; TipoOp::DEPOSITO ; valor).
+                    manda("Transferencia de R$ " & valor & " da conta #" & origem & " para #" & destino & " realizada!").
+                }.
+            }.
+        }.
+    }.
+
+    # ---------------------------------------------------------------
+    # Menu interativo
+    # ---------------------------------------------------------------
+    bglh int opcao : 0.
+
+    enquanto (opcao != 9) {
+        manda("").
+        manda("=============================").
+        manda("   SISTEMA BANCARIO TARBALO  ").
+        manda("=============================").
+        manda("1 - Criar conta").
+        manda("2 - Depositar").
+        manda("3 - Sacar").
+        manda("4 - Ver saldo").
+        manda("5 - Ver extrato").
+        manda("6 - Transferir").
+        manda("7 - Listar contas").
+        manda("8 - Aplicar taxa mensal").
+        manda("9 - Sair").
+        manda("Escolha uma opcao:").
+        espia(opcao).
+
+        sepa (opcao = 1) {
+            bglh int novoId.
+            bglh txt novoNome.
+            manda("ID da conta:").
+            espia(novoId).
+            manda("Nome do titular:").
+            espia(novoNome).
+            criarConta(novoId ; novoNome).
+        }.
+
+        sepa (opcao = 2) {
+            bglh int idDep.
+            bglh qbd valDep.
+            manda("ID da conta:").
+            espia(idDep).
+            manda("Valor do deposito:").
+            espia(valDep).
+            depositar(idDep ; valDep).
+        }.
+
+        sepa (opcao = 3) {
+            bglh int idSaq.
+            bglh qbd valSaq.
+            manda("ID da conta:").
+            espia(idSaq).
+            manda("Valor do saque:").
+            espia(valSaq).
+            sacar(idSaq ; valSaq).
+        }.
+
+        sepa (opcao = 4) {
+            bglh int idSaldo.
+            manda("ID da conta:").
+            espia(idSaldo).
+            verSaldo(idSaldo).
+        }.
+
+        sepa (opcao = 5) {
+            bglh int idExt.
+            manda("ID da conta:").
+            espia(idExt).
+            verExtrato(idExt).
+        }.
+
+        sepa (opcao = 6) {
+            bglh int idOri.
+            bglh int idDes.
+            bglh qbd valTransf.
+            manda("Conta de origem:").
+            espia(idOri).
+            manda("Conta de destino:").
+            espia(idDes).
+            manda("Valor:").
+            espia(valTransf).
+            transferir(idOri ; idDes ; valTransf).
+        }.
+
+        sepa (opcao = 7) {
+            listarContas().
+        }.
+
+        sepa (opcao = 8) {
+            aplicarTaxa().
+        }.
+
+        sepa (opcao = 9) {
+            manda("Encerrando sistema...").
+        } vish {
+            sepa (opcao < 1) {
+                manda("Opcao invalida!").
+            } vish {
+                sepa (opcao > 9) {
+                    manda("Opcao invalida!").
+                }.
+            }.
+        }.
+    }.
+
+    manda("Obrigado por usar o Sistema Bancario Tarbalo!").
+flw.

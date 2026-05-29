@@ -13,9 +13,11 @@ public class Simbolo {
     private List<Integer> tamanhos; // tamanhos das dimensões fixas, se houver
     private List<String> tiposParametros; // para funções
     private String tipoRetorno;   // para funções
+    private String tipoCnjt;     // para CNJT_ELEM: nome do cnjt ao qual pertence
+    private String nomeRegs;     // para REGS_CAMPO: nome do struct ao qual pertence
 
     public enum Categoria {
-        VARIAVEL, VETOR, FUNCAO
+        VARIAVEL, VETOR, FUNCAO, CNJT, CNJT_ELEM, REGS, REGS_CAMPO
     }
 
     // Construtor para variável simples
@@ -36,6 +38,36 @@ public class Simbolo {
         this.dimensoes = dimensoes;
         this.dinamico = dinamico;
         this.tamanhos = tamanhos;
+    }
+
+    // Factory para cnjt (enum)
+    public static Simbolo criarCnjt(String nome, String tipo) {
+        Simbolo s = new Simbolo(nome, tipo);
+        s.categoria = Categoria.CNJT;
+        return s;
+    }
+
+    // Factory para elemento de cnjt
+    public static Simbolo criarCnjtElem(String nome, String valorTipo, String nomeCnjt) {
+        Simbolo s = new Simbolo(nome, valorTipo);
+        s.categoria = Categoria.CNJT_ELEM;
+        s.tipoCnjt = nomeCnjt;
+        return s;
+    }
+
+    // Factory para struct (reg)
+    public static Simbolo criarRegs(String nome) {
+        Simbolo s = new Simbolo(nome, nome);
+        s.categoria = Categoria.REGS;
+        return s;
+    }
+
+    // Factory para campo de struct
+    public static Simbolo criarCampo(String nome, String tipo, String nomeRegs) {
+        Simbolo s = new Simbolo(nome, tipo);
+        s.categoria = Categoria.REGS_CAMPO;
+        s.nomeRegs = nomeRegs;
+        return s;
     }
 
     // Construtor para função
@@ -60,6 +92,8 @@ public class Simbolo {
     public List<Integer> getTamanhos() { return tamanhos; }
     public List<String> getTiposParametros() { return tiposParametros; }
     public String getTipoRetorno() { return tipoRetorno; }
+    public String getTipoCnjt() { return tipoCnjt; }
+    public String getNomeRegs() { return nomeRegs; }
 
     @Override
     public boolean equals(Object o) {

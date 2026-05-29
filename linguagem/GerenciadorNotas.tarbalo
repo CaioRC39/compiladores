@@ -1,0 +1,339 @@
+bora
+    # ================================================================
+    # GERENCIADOR DE NOTAS EM TARBALO
+    # Sistema de cadastro e analise de notas de alunos
+    # ================================================================
+
+    # --- Enums ---
+    cnjt txt Conceito { A : "A - Excelente". B : "B - Bom". C : "C - Regular". D : "D - Reprovado". }.
+
+    # --- Dados dos alunos (paralelos) ---
+    bond txt alunos_nomes[50].
+    bond qbd alunos_n1[50].
+    bond qbd alunos_n2[50].
+    bond qbd alunos_n3[50].
+    bond qbd alunos_media[50].
+    bond txt alunos_conceito[50].
+    bglh int totalAlunos : 0.
+    bglh int MAX_ALUNOS : 50.
+
+    # ---------------------------------------------------------------
+    # Funcoes de calculo
+    # ---------------------------------------------------------------
+
+    func qbd calcularMedia(qbd n1. qbd n2. qbd n3) {
+        receba (n1 + n2 + n3) / 3.
+    }.
+
+    func txt obterConceito(qbd media) {
+        sepa (media >= 9) {
+            receba Conceito::A.
+        }.
+        sepa (media >= 7) {
+            receba Conceito::B.
+        }.
+        sepa (media >= 5) {
+            receba Conceito::C.
+        }.
+        receba Conceito::D.
+    }.
+
+    func int buscarAluno(txt nome) {
+        para (bglh int i : 0. i < totalAlunos. i : i + 1) {
+            sepa (alunos_nomes[i] = nome) {
+                receba i.
+            }.
+        }.
+        receba -1.
+    }.
+
+    # ---------------------------------------------------------------
+    # Operacoes CRUD
+    # ---------------------------------------------------------------
+
+    func lgc cadastrarAluno(txt nome. qbd n1. qbd n2. qbd n3) {
+        sepa (totalAlunos >= MAX_ALUNOS) {
+            manda("Limite de alunos atingido!").
+            receba FAKE.
+        }.
+        sepa (buscarAluno(nome) != -1) {
+            manda("Aluno ja cadastrado!").
+            receba FAKE.
+        }.
+        alunos_nomes[totalAlunos] : nome.
+        alunos_n1[totalAlunos] : n1.
+        alunos_n2[totalAlunos] : n2.
+        alunos_n3[totalAlunos] : n3.
+        alunos_media[totalAlunos] : calcularMedia(n1 ; n2 ; n3).
+        alunos_conceito[totalAlunos] : obterConceito(alunos_media[totalAlunos]).
+        totalAlunos ++.
+        manda("Aluno " & nome & " cadastrado com sucesso!").
+        receba VDD.
+    }.
+
+    func vazio exibirAluno(int idx) {
+        manda("  Nome: " & alunos_nomes[idx]).
+        manda("  N1: " & alunos_n1[idx] & " | N2: " & alunos_n2[idx] & " | N3: " & alunos_n3[idx]).
+        manda("  Media: " & alunos_media[idx]).
+        manda("  Conceito: " & alunos_conceito[idx]).
+    }.
+
+    func vazio consultarAluno(txt nome) {
+        bglh int idx : buscarAluno(nome).
+        sepa (idx = -1) {
+            manda("Aluno nao encontrado!").
+        } vish {
+            manda("=== Ficha do Aluno ===").
+            exibirAluno(idx).
+        }.
+    }.
+
+    func vazio listarTodos() {
+        manda("=== Lista de Alunos ===").
+        sepa (totalAlunos = 0) {
+            manda("Nenhum aluno cadastrado.").
+            receba.
+        }.
+        para (bglh int i : 0. i < totalAlunos. i : i + 1) {
+            manda("--- Aluno " & (i + 1) & " ---").
+            exibirAluno(i).
+        }.
+    }.
+
+    # ---------------------------------------------------------------
+    # Relatorios estatisticos
+    # ---------------------------------------------------------------
+
+    func vazio relatorioEstatisticas() {
+        sepa (totalAlunos = 0) {
+            manda("Nenhum aluno para analisar.").
+            receba.
+        }.
+
+        bglh qbd soma : 0.
+        bglh qbd maior : alunos_media[0].
+        bglh qbd menor : alunos_media[0].
+        bglh txt melhorAluno : alunos_nomes[0].
+        bglh txt piorAluno : alunos_nomes[0].
+        bglh int countA : 0.
+        bglh int countB : 0.
+        bglh int countC : 0.
+        bglh int countD : 0.
+        bglh int aprovados : 0.
+
+        para (bglh int i : 0. i < totalAlunos. i : i + 1) {
+            soma : soma + alunos_media[i].
+
+            sepa (alunos_media[i] > maior) {
+                maior : alunos_media[i].
+                melhorAluno : alunos_nomes[i].
+            }.
+            sepa (alunos_media[i] < menor) {
+                menor : alunos_media[i].
+                piorAluno : alunos_nomes[i].
+            }.
+
+            sepa (alunos_conceito[i] = Conceito::A) {
+                countA ++.
+                aprovados ++.
+            }.
+            sepa (alunos_conceito[i] = Conceito::B) {
+                countB ++.
+                aprovados ++.
+            }.
+            sepa (alunos_conceito[i] = Conceito::C) {
+                countC ++.
+                aprovados ++.
+            }.
+            sepa (alunos_conceito[i] = Conceito::D) {
+                countD ++.
+            }.
+        }.
+
+        bglh qbd mediaTurma : soma / totalAlunos.
+
+        manda("").
+        manda("===============================").
+        manda("   RELATORIO ESTATISTICO       ").
+        manda("===============================").
+        manda("Total de alunos: " & totalAlunos).
+        manda("Media da turma: " & mediaTurma).
+        manda("Maior media: " & maior & " (" & melhorAluno & ")").
+        manda("Menor media: " & menor & " (" & piorAluno & ")").
+        manda("").
+        manda("Distribuicao por conceito:").
+        manda("  A (Excelente): " & countA).
+        manda("  B (Bom):       " & countB).
+        manda("  C (Regular):   " & countC).
+        manda("  D (Reprovado): " & countD).
+        manda("").
+        bglh qbd percAprov : 0.
+        sepa (totalAlunos > 0) {
+            percAprov : aprovados * 100 / totalAlunos.
+        }.
+        manda("Aprovados: " & aprovados & "/" & totalAlunos & " (" & percAprov & "%)").
+        bglh int reprovados : totalAlunos - aprovados.
+        manda("Reprovados: " & reprovados & "/" & totalAlunos).
+    }.
+
+    func vazio relatorioAprovados() {
+        manda("=== Alunos Aprovados (media >= 5) ===").
+        bglh int count : 0.
+        para (bglh int i : 0. i < totalAlunos. i : i + 1) {
+            sepa (alunos_media[i] >= 5) {
+                manda("  " & alunos_nomes[i] & " - Media: " & alunos_media[i] & " - " & alunos_conceito[i]).
+                count ++.
+            }.
+        }.
+        sepa (count = 0) {
+            manda("  Nenhum aluno aprovado.").
+        }.
+        manda("Total aprovados: " & count).
+    }.
+
+    func vazio relatorioReprovados() {
+        manda("=== Alunos Reprovados (media < 5) ===").
+        bglh int count : 0.
+        para (bglh int i : 0. i < totalAlunos. i : i + 1) {
+            sepa (alunos_media[i] < 5) {
+                manda("  " & alunos_nomes[i] & " - Media: " & alunos_media[i] & " - " & alunos_conceito[i]).
+                count ++.
+            }.
+        }.
+        sepa (count = 0) {
+            manda("  Nenhum aluno reprovado!").
+        }.
+        manda("Total reprovados: " & count).
+    }.
+
+    # ---------------------------------------------------------------
+    # Funcao de ordenacao por media (bubble sort)
+    # ---------------------------------------------------------------
+
+    func vazio ordenarPorMedia() {
+        para (bglh int i : 0. i < totalAlunos - 1. i : i + 1) {
+            para (bglh int j : 0. j < totalAlunos - 1 - i. j : j + 1) {
+                sepa (alunos_media[j] < alunos_media[j + 1]) {
+                    # Trocar nomes
+                    bglh txt tmpNome : alunos_nomes[j].
+                    alunos_nomes[j] : alunos_nomes[j + 1].
+                    alunos_nomes[j + 1] : tmpNome.
+
+                    # Trocar N1
+                    bglh qbd tmpN : alunos_n1[j].
+                    alunos_n1[j] : alunos_n1[j + 1].
+                    alunos_n1[j + 1] : tmpN.
+
+                    # Trocar N2
+                    tmpN : alunos_n2[j].
+                    alunos_n2[j] : alunos_n2[j + 1].
+                    alunos_n2[j + 1] : tmpN.
+
+                    # Trocar N3
+                    tmpN : alunos_n3[j].
+                    alunos_n3[j] : alunos_n3[j + 1].
+                    alunos_n3[j + 1] : tmpN.
+
+                    # Trocar media
+                    tmpN : alunos_media[j].
+                    alunos_media[j] : alunos_media[j + 1].
+                    alunos_media[j + 1] : tmpN.
+
+                    # Trocar conceito
+                    bglh txt tmpConc : alunos_conceito[j].
+                    alunos_conceito[j] : alunos_conceito[j + 1].
+                    alunos_conceito[j + 1] : tmpConc.
+                }.
+            }.
+        }.
+        manda("Alunos ordenados por media (decrescente)!").
+    }.
+
+    # ---------------------------------------------------------------
+    # Menu interativo
+    # ---------------------------------------------------------------
+
+    bglh int opcao : 0.
+
+    # Dados de exemplo
+    cadastrarAluno("Ana" ; 8,5 ; 7,0 ; 9,0).
+    cadastrarAluno("Bruno" ; 6,0 ; 5,5 ; 4,0).
+    cadastrarAluno("Carlos" ; 9,5 ; 9,0 ; 10,0).
+    cadastrarAluno("Diana" ; 3,0 ; 4,5 ; 5,0).
+    cadastrarAluno("Elena" ; 7,0 ; 7,5 ; 8,0).
+
+    enquanto (opcao != 8) {
+        manda("").
+        manda("=============================").
+        manda("  GERENCIADOR DE NOTAS       ").
+        manda("=============================").
+        manda("1 - Cadastrar aluno").
+        manda("2 - Consultar aluno").
+        manda("3 - Listar todos").
+        manda("4 - Relatorio estatistico").
+        manda("5 - Aprovados").
+        manda("6 - Reprovados").
+        manda("7 - Ordenar por media").
+        manda("8 - Sair").
+        manda("Escolha:").
+        espia(opcao).
+
+        sepa (opcao = 1) {
+            bglh txt nome.
+            bglh qbd n1.
+            bglh qbd n2.
+            bglh qbd n3.
+            manda("Nome do aluno:").
+            espia(nome).
+            manda("Nota 1:").
+            espia(n1).
+            manda("Nota 2:").
+            espia(n2).
+            manda("Nota 3:").
+            espia(n3).
+            cadastrarAluno(nome ; n1 ; n2 ; n3).
+        }.
+
+        sepa (opcao = 2) {
+            bglh txt nomeBusca.
+            manda("Nome do aluno:").
+            espia(nomeBusca).
+            consultarAluno(nomeBusca).
+        }.
+
+        sepa (opcao = 3) {
+            listarTodos().
+        }.
+
+        sepa (opcao = 4) {
+            relatorioEstatisticas().
+        }.
+
+        sepa (opcao = 5) {
+            relatorioAprovados().
+        }.
+
+        sepa (opcao = 6) {
+            relatorioReprovados().
+        }.
+
+        sepa (opcao = 7) {
+            ordenarPorMedia().
+            listarTodos().
+        }.
+
+        sepa (opcao = 8) {
+            manda("Encerrando...").
+        } vish {
+            sepa (opcao < 1) {
+                manda("Opcao invalida!").
+            } vish {
+                sepa (opcao > 8) {
+                    manda("Opcao invalida!").
+                }.
+            }.
+        }.
+    }.
+
+    manda("Obrigado por usar o Gerenciador de Notas!").
+flw.
